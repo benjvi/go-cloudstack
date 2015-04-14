@@ -26,6 +26,10 @@ Another nice feature is the fact that for every API command you can create the n
 
 Last but not least there are a whole lot of helper function that will try to automatically find an UUID for you for a certain item (disk, template, virtualmachine, network...). This makes it much easier and faster to work with the API commands and in most cases you can just use then if you know the name instead of the UUID.
 
+## Code Generation (If generate.go is updated)
+
+The generate.go generates the three cloudstack folders according to the version specified in generate.go. After this has been run, it may also be necessary to run: "goimports -w=true /opt/gopath/src/github.com/xanzy/go-cloudstack/cloudstack" where the goimports soruce can be fetched from "go get golang.org/x/tools/cmd/goimports".
+
 ## ToDO
 
 I fully understand I need to document this all a little more/better and there should also be some tests added.
