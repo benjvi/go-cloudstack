@@ -713,7 +713,7 @@ func (p *ListNetworksParams) toURLValues() url.Values {
 		u.Set("specifyipranges", vv)
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	if v, found := p.p["tags"]; found {
@@ -1453,7 +1453,7 @@ func (p *CreatePhysicalNetworkParams) toURLValues() url.Values {
 		u.Set("domainid", v.(string))
 	}
 	if v, found := p.p["isolationmethods"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("isolationmethods", vv)
 	}
 	if v, found := p.p["name"]; found {
@@ -1463,7 +1463,7 @@ func (p *CreatePhysicalNetworkParams) toURLValues() url.Values {
 		u.Set("networkspeed", v.(string))
 	}
 	if v, found := p.p["tags"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("tags", vv)
 	}
 	if v, found := p.p["vlan"]; found {
@@ -1878,7 +1878,7 @@ func (p *UpdatePhysicalNetworkParams) toURLValues() url.Values {
 		u.Set("state", v.(string))
 	}
 	if v, found := p.p["tags"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("tags", vv)
 	}
 	if v, found := p.p["vlan"]; found {
@@ -2119,7 +2119,7 @@ func (p *AddNetworkServiceProviderParams) toURLValues() url.Values {
 		u.Set("physicalnetworkid", v.(string))
 	}
 	if v, found := p.p["servicelist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("servicelist", vv)
 	}
 	return u
@@ -2443,7 +2443,7 @@ func (p *UpdateNetworkServiceProviderParams) toURLValues() url.Values {
 		u.Set("id", v.(string))
 	}
 	if v, found := p.p["servicelist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("servicelist", vv)
 	}
 	if v, found := p.p["state"]; found {

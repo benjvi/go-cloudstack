@@ -271,7 +271,7 @@ func (p *CreatePortForwardingRuleParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["ipaddressid"]; found {
@@ -716,7 +716,7 @@ func (p *CreateFirewallRuleParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["endport"]; found {
@@ -1196,7 +1196,7 @@ func (p *CreateEgressFirewallRuleParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["endport"]; found {
