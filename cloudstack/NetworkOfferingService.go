@@ -105,7 +105,7 @@ func (p *CreateNetworkOfferingParams) toURLValues() url.Values {
 		u.Set("specifyvlan", vv)
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	if v, found := p.p["tags"]; found {
@@ -328,13 +328,12 @@ type CreateNetworkOfferingResponse struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	Serviceofferingid        string `json:"serviceofferingid,omitempty"`
-	Specifyipranges          bool   `json:"specifyipranges,omitempty"`
-	Specifyvlan              bool   `json:"specifyvlan,omitempty"`
-	State                    string `json:"state,omitempty"`
-	Supportsstrechedl2subnet bool   `json:"supportsstrechedl2subnet,omitempty"`
-	Tags                     string `json:"tags,omitempty"`
-	Traffictype              string `json:"traffictype,omitempty"`
+	Serviceofferingid string `json:"serviceofferingid,omitempty"`
+	Specifyipranges   bool   `json:"specifyipranges,omitempty"`
+	Specifyvlan       bool   `json:"specifyvlan,omitempty"`
+	State             string `json:"state,omitempty"`
+	Tags              string `json:"tags,omitempty"`
+	Traffictype       string `json:"traffictype,omitempty"`
 }
 
 type UpdateNetworkOfferingParams struct {
@@ -494,13 +493,12 @@ type UpdateNetworkOfferingResponse struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	Serviceofferingid        string `json:"serviceofferingid,omitempty"`
-	Specifyipranges          bool   `json:"specifyipranges,omitempty"`
-	Specifyvlan              bool   `json:"specifyvlan,omitempty"`
-	State                    string `json:"state,omitempty"`
-	Supportsstrechedl2subnet bool   `json:"supportsstrechedl2subnet,omitempty"`
-	Tags                     string `json:"tags,omitempty"`
-	Traffictype              string `json:"traffictype,omitempty"`
+	Serviceofferingid string `json:"serviceofferingid,omitempty"`
+	Specifyipranges   bool   `json:"specifyipranges,omitempty"`
+	Specifyvlan       bool   `json:"specifyvlan,omitempty"`
+	State             string `json:"state,omitempty"`
+	Tags              string `json:"tags,omitempty"`
+	Traffictype       string `json:"traffictype,omitempty"`
 }
 
 type DeleteNetworkOfferingParams struct {
@@ -620,7 +618,7 @@ func (p *ListNetworkOfferingsParams) toURLValues() url.Values {
 		u.Set("state", v.(string))
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	if v, found := p.p["tags"]; found {
@@ -925,11 +923,10 @@ type NetworkOffering struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	Serviceofferingid        string `json:"serviceofferingid,omitempty"`
-	Specifyipranges          bool   `json:"specifyipranges,omitempty"`
-	Specifyvlan              bool   `json:"specifyvlan,omitempty"`
-	State                    string `json:"state,omitempty"`
-	Supportsstrechedl2subnet bool   `json:"supportsstrechedl2subnet,omitempty"`
-	Tags                     string `json:"tags,omitempty"`
-	Traffictype              string `json:"traffictype,omitempty"`
+	Serviceofferingid string `json:"serviceofferingid,omitempty"`
+	Specifyipranges   bool   `json:"specifyipranges,omitempty"`
+	Specifyvlan       bool   `json:"specifyvlan,omitempty"`
+	State             string `json:"state,omitempty"`
+	Tags              string `json:"tags,omitempty"`
+	Traffictype       string `json:"traffictype,omitempty"`
 }

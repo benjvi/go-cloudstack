@@ -45,10 +45,6 @@ func (p *CreateVPCParams) toURLValues() url.Values {
 	if v, found := p.p["domainid"]; found {
 		u.Set("domainid", v.(string))
 	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["name"]; found {
 		u.Set("name", v.(string))
 	}
@@ -100,14 +96,6 @@ func (p *CreateVPCParams) SetDomainid(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["domainid"] = v
-	return
-}
-
-func (p *CreateVPCParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -209,18 +197,16 @@ func (s *VPCService) CreateVPC(p *CreateVPCParams) (*CreateVPCResponse, error) {
 }
 
 type CreateVPCResponse struct {
-	JobID                string `json:"jobid,omitempty"`
-	Account              string `json:"account,omitempty"`
-	Cidr                 string `json:"cidr,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Domain               string `json:"domain,omitempty"`
-	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Network              []struct {
+	JobID       string `json:"jobid,omitempty"`
+	Account     string `json:"account,omitempty"`
+	Cidr        string `json:"cidr,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Domain      string `json:"domain,omitempty"`
+	Domainid    string `json:"domainid,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Network     []struct {
 		Account                     string `json:"account,omitempty"`
 		Aclid                       string `json:"aclid,omitempty"`
 		Acltype                     string `json:"acltype,omitempty"`
@@ -273,11 +259,10 @@ type CreateVPCResponse struct {
 				State                        string   `json:"state,omitempty"`
 			} `json:"provider,omitempty"`
 		} `json:"service,omitempty"`
-		Specifyipranges  bool   `json:"specifyipranges,omitempty"`
-		State            string `json:"state,omitempty"`
-		Strechedl2subnet bool   `json:"strechedl2subnet,omitempty"`
-		Subdomainaccess  bool   `json:"subdomainaccess,omitempty"`
-		Tags             []struct {
+		Specifyipranges bool   `json:"specifyipranges,omitempty"`
+		State           string `json:"state,omitempty"`
+		Subdomainaccess bool   `json:"subdomainaccess,omitempty"`
+		Tags            []struct {
 			Account      string `json:"account,omitempty"`
 			Customer     string `json:"customer,omitempty"`
 			Domain       string `json:"domain,omitempty"`
@@ -289,18 +274,16 @@ type CreateVPCResponse struct {
 			Resourcetype string `json:"resourcetype,omitempty"`
 			Value        string `json:"value,omitempty"`
 		} `json:"tags,omitempty"`
-		Traffictype       string   `json:"traffictype,omitempty"`
-		Type              string   `json:"type,omitempty"`
-		Vlan              string   `json:"vlan,omitempty"`
-		Vpcid             string   `json:"vpcid,omitempty"`
-		Zoneid            string   `json:"zoneid,omitempty"`
-		Zonename          string   `json:"zonename,omitempty"`
-		Zonesnetworkspans []string `json:"zonesnetworkspans,omitempty"`
+		Traffictype string `json:"traffictype,omitempty"`
+		Type        string `json:"type,omitempty"`
+		Vlan        string `json:"vlan,omitempty"`
+		Vpcid       string `json:"vpcid,omitempty"`
+		Zoneid      string `json:"zoneid,omitempty"`
+		Zonename    string `json:"zonename,omitempty"`
 	} `json:"network,omitempty"`
 	Networkdomain   string `json:"networkdomain,omitempty"`
 	Project         string `json:"project,omitempty"`
 	Projectid       string `json:"projectid,omitempty"`
-	Regionlevelvpc  bool   `json:"regionlevelvpc,omitempty"`
 	Restartrequired bool   `json:"restartrequired,omitempty"`
 	Service         []struct {
 		Capability []struct {
@@ -358,10 +341,6 @@ func (p *ListVPCsParams) toURLValues() url.Values {
 	if v, found := p.p["domainid"]; found {
 		u.Set("domainid", v.(string))
 	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
 	}
@@ -398,7 +377,7 @@ func (p *ListVPCsParams) toURLValues() url.Values {
 		u.Set("state", v.(string))
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	if v, found := p.p["tags"]; found {
@@ -447,14 +426,6 @@ func (p *ListVPCsParams) SetDomainid(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["domainid"] = v
-	return
-}
-
-func (p *ListVPCsParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -669,17 +640,15 @@ type ListVPCsResponse struct {
 }
 
 type VPC struct {
-	Account              string `json:"account,omitempty"`
-	Cidr                 string `json:"cidr,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Domain               string `json:"domain,omitempty"`
-	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Network              []struct {
+	Account     string `json:"account,omitempty"`
+	Cidr        string `json:"cidr,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Domain      string `json:"domain,omitempty"`
+	Domainid    string `json:"domainid,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Network     []struct {
 		Account                     string `json:"account,omitempty"`
 		Aclid                       string `json:"aclid,omitempty"`
 		Acltype                     string `json:"acltype,omitempty"`
@@ -732,11 +701,10 @@ type VPC struct {
 				State                        string   `json:"state,omitempty"`
 			} `json:"provider,omitempty"`
 		} `json:"service,omitempty"`
-		Specifyipranges  bool   `json:"specifyipranges,omitempty"`
-		State            string `json:"state,omitempty"`
-		Strechedl2subnet bool   `json:"strechedl2subnet,omitempty"`
-		Subdomainaccess  bool   `json:"subdomainaccess,omitempty"`
-		Tags             []struct {
+		Specifyipranges bool   `json:"specifyipranges,omitempty"`
+		State           string `json:"state,omitempty"`
+		Subdomainaccess bool   `json:"subdomainaccess,omitempty"`
+		Tags            []struct {
 			Account      string `json:"account,omitempty"`
 			Customer     string `json:"customer,omitempty"`
 			Domain       string `json:"domain,omitempty"`
@@ -748,18 +716,16 @@ type VPC struct {
 			Resourcetype string `json:"resourcetype,omitempty"`
 			Value        string `json:"value,omitempty"`
 		} `json:"tags,omitempty"`
-		Traffictype       string   `json:"traffictype,omitempty"`
-		Type              string   `json:"type,omitempty"`
-		Vlan              string   `json:"vlan,omitempty"`
-		Vpcid             string   `json:"vpcid,omitempty"`
-		Zoneid            string   `json:"zoneid,omitempty"`
-		Zonename          string   `json:"zonename,omitempty"`
-		Zonesnetworkspans []string `json:"zonesnetworkspans,omitempty"`
+		Traffictype string `json:"traffictype,omitempty"`
+		Type        string `json:"type,omitempty"`
+		Vlan        string `json:"vlan,omitempty"`
+		Vpcid       string `json:"vpcid,omitempty"`
+		Zoneid      string `json:"zoneid,omitempty"`
+		Zonename    string `json:"zonename,omitempty"`
 	} `json:"network,omitempty"`
 	Networkdomain   string `json:"networkdomain,omitempty"`
 	Project         string `json:"project,omitempty"`
 	Projectid       string `json:"projectid,omitempty"`
-	Regionlevelvpc  bool   `json:"regionlevelvpc,omitempty"`
 	Restartrequired bool   `json:"restartrequired,omitempty"`
 	Service         []struct {
 		Capability []struct {
@@ -874,15 +840,8 @@ func (p *UpdateVPCParams) toURLValues() url.Values {
 	if p.p == nil {
 		return u
 	}
-	if v, found := p.p["customid"]; found {
-		u.Set("customid", v.(string))
-	}
 	if v, found := p.p["displaytext"]; found {
 		u.Set("displaytext", v.(string))
-	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
 	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
@@ -893,27 +852,11 @@ func (p *UpdateVPCParams) toURLValues() url.Values {
 	return u
 }
 
-func (p *UpdateVPCParams) SetCustomid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["customid"] = v
-	return
-}
-
 func (p *UpdateVPCParams) SetDisplaytext(v string) {
 	if p.p == nil {
 		p.p = make(map[string]interface{})
 	}
 	p.p["displaytext"] = v
-	return
-}
-
-func (p *UpdateVPCParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -935,10 +878,11 @@ func (p *UpdateVPCParams) SetName(v string) {
 
 // You should always use this function to get a new UpdateVPCParams instance,
 // as then you are sure you have configured all required params
-func (s *VPCService) NewUpdateVPCParams(id string) *UpdateVPCParams {
+func (s *VPCService) NewUpdateVPCParams(id string, name string) *UpdateVPCParams {
 	p := &UpdateVPCParams{}
 	p.p = make(map[string]interface{})
 	p.p["id"] = id
+	p.p["name"] = name
 	return p
 }
 
@@ -979,18 +923,16 @@ func (s *VPCService) UpdateVPC(p *UpdateVPCParams) (*UpdateVPCResponse, error) {
 }
 
 type UpdateVPCResponse struct {
-	JobID                string `json:"jobid,omitempty"`
-	Account              string `json:"account,omitempty"`
-	Cidr                 string `json:"cidr,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Domain               string `json:"domain,omitempty"`
-	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Network              []struct {
+	JobID       string `json:"jobid,omitempty"`
+	Account     string `json:"account,omitempty"`
+	Cidr        string `json:"cidr,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Domain      string `json:"domain,omitempty"`
+	Domainid    string `json:"domainid,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Network     []struct {
 		Account                     string `json:"account,omitempty"`
 		Aclid                       string `json:"aclid,omitempty"`
 		Acltype                     string `json:"acltype,omitempty"`
@@ -1043,11 +985,10 @@ type UpdateVPCResponse struct {
 				State                        string   `json:"state,omitempty"`
 			} `json:"provider,omitempty"`
 		} `json:"service,omitempty"`
-		Specifyipranges  bool   `json:"specifyipranges,omitempty"`
-		State            string `json:"state,omitempty"`
-		Strechedl2subnet bool   `json:"strechedl2subnet,omitempty"`
-		Subdomainaccess  bool   `json:"subdomainaccess,omitempty"`
-		Tags             []struct {
+		Specifyipranges bool   `json:"specifyipranges,omitempty"`
+		State           string `json:"state,omitempty"`
+		Subdomainaccess bool   `json:"subdomainaccess,omitempty"`
+		Tags            []struct {
 			Account      string `json:"account,omitempty"`
 			Customer     string `json:"customer,omitempty"`
 			Domain       string `json:"domain,omitempty"`
@@ -1059,18 +1000,16 @@ type UpdateVPCResponse struct {
 			Resourcetype string `json:"resourcetype,omitempty"`
 			Value        string `json:"value,omitempty"`
 		} `json:"tags,omitempty"`
-		Traffictype       string   `json:"traffictype,omitempty"`
-		Type              string   `json:"type,omitempty"`
-		Vlan              string   `json:"vlan,omitempty"`
-		Vpcid             string   `json:"vpcid,omitempty"`
-		Zoneid            string   `json:"zoneid,omitempty"`
-		Zonename          string   `json:"zonename,omitempty"`
-		Zonesnetworkspans []string `json:"zonesnetworkspans,omitempty"`
+		Traffictype string `json:"traffictype,omitempty"`
+		Type        string `json:"type,omitempty"`
+		Vlan        string `json:"vlan,omitempty"`
+		Vpcid       string `json:"vpcid,omitempty"`
+		Zoneid      string `json:"zoneid,omitempty"`
+		Zonename    string `json:"zonename,omitempty"`
 	} `json:"network,omitempty"`
 	Networkdomain   string `json:"networkdomain,omitempty"`
 	Project         string `json:"project,omitempty"`
 	Projectid       string `json:"projectid,omitempty"`
-	Regionlevelvpc  bool   `json:"regionlevelvpc,omitempty"`
 	Restartrequired bool   `json:"restartrequired,omitempty"`
 	Service         []struct {
 		Capability []struct {
@@ -1176,18 +1115,16 @@ func (s *VPCService) RestartVPC(p *RestartVPCParams) (*RestartVPCResponse, error
 }
 
 type RestartVPCResponse struct {
-	JobID                string `json:"jobid,omitempty"`
-	Account              string `json:"account,omitempty"`
-	Cidr                 string `json:"cidr,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Domain               string `json:"domain,omitempty"`
-	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Network              []struct {
+	JobID       string `json:"jobid,omitempty"`
+	Account     string `json:"account,omitempty"`
+	Cidr        string `json:"cidr,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Domain      string `json:"domain,omitempty"`
+	Domainid    string `json:"domainid,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Network     []struct {
 		Account                     string `json:"account,omitempty"`
 		Aclid                       string `json:"aclid,omitempty"`
 		Acltype                     string `json:"acltype,omitempty"`
@@ -1240,11 +1177,10 @@ type RestartVPCResponse struct {
 				State                        string   `json:"state,omitempty"`
 			} `json:"provider,omitempty"`
 		} `json:"service,omitempty"`
-		Specifyipranges  bool   `json:"specifyipranges,omitempty"`
-		State            string `json:"state,omitempty"`
-		Strechedl2subnet bool   `json:"strechedl2subnet,omitempty"`
-		Subdomainaccess  bool   `json:"subdomainaccess,omitempty"`
-		Tags             []struct {
+		Specifyipranges bool   `json:"specifyipranges,omitempty"`
+		State           string `json:"state,omitempty"`
+		Subdomainaccess bool   `json:"subdomainaccess,omitempty"`
+		Tags            []struct {
 			Account      string `json:"account,omitempty"`
 			Customer     string `json:"customer,omitempty"`
 			Domain       string `json:"domain,omitempty"`
@@ -1256,18 +1192,16 @@ type RestartVPCResponse struct {
 			Resourcetype string `json:"resourcetype,omitempty"`
 			Value        string `json:"value,omitempty"`
 		} `json:"tags,omitempty"`
-		Traffictype       string   `json:"traffictype,omitempty"`
-		Type              string   `json:"type,omitempty"`
-		Vlan              string   `json:"vlan,omitempty"`
-		Vpcid             string   `json:"vpcid,omitempty"`
-		Zoneid            string   `json:"zoneid,omitempty"`
-		Zonename          string   `json:"zonename,omitempty"`
-		Zonesnetworkspans []string `json:"zonesnetworkspans,omitempty"`
+		Traffictype string `json:"traffictype,omitempty"`
+		Type        string `json:"type,omitempty"`
+		Vlan        string `json:"vlan,omitempty"`
+		Vpcid       string `json:"vpcid,omitempty"`
+		Zoneid      string `json:"zoneid,omitempty"`
+		Zonename    string `json:"zonename,omitempty"`
 	} `json:"network,omitempty"`
 	Networkdomain   string `json:"networkdomain,omitempty"`
 	Project         string `json:"project,omitempty"`
 	Projectid       string `json:"projectid,omitempty"`
-	Regionlevelvpc  bool   `json:"regionlevelvpc,omitempty"`
 	Restartrequired bool   `json:"restartrequired,omitempty"`
 	Service         []struct {
 		Capability []struct {
@@ -1319,14 +1253,6 @@ func (p *CreateVPCOfferingParams) toURLValues() url.Values {
 	if v, found := p.p["name"]; found {
 		u.Set("name", v.(string))
 	}
-	if v, found := p.p["servicecapabilitylist"]; found {
-		i := 0
-		for k, vv := range v.(map[string]string) {
-			u.Set(fmt.Sprintf("servicecapabilitylist[%d].key", i), k)
-			u.Set(fmt.Sprintf("servicecapabilitylist[%d].value", i), vv)
-			i++
-		}
-	}
 	if v, found := p.p["serviceofferingid"]; found {
 		u.Set("serviceofferingid", v.(string))
 	}
@@ -1339,7 +1265,7 @@ func (p *CreateVPCOfferingParams) toURLValues() url.Values {
 		}
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	return u
@@ -1358,14 +1284,6 @@ func (p *CreateVPCOfferingParams) SetName(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["name"] = v
-	return
-}
-
-func (p *CreateVPCOfferingParams) SetServicecapabilitylist(v map[string]string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["servicecapabilitylist"] = v
 	return
 }
 
@@ -1441,14 +1359,13 @@ func (s *VPCService) CreateVPCOffering(p *CreateVPCOfferingParams) (*CreateVPCOf
 }
 
 type CreateVPCOfferingResponse struct {
-	JobID                string `json:"jobid,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Isdefault            bool   `json:"isdefault,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Service              []struct {
+	JobID       string `json:"jobid,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Isdefault   bool   `json:"isdefault,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Service     []struct {
 		Capability []struct {
 			Canchooseservicecapability bool   `json:"canchooseservicecapability,omitempty"`
 			Name                       string `json:"name,omitempty"`
@@ -1465,8 +1382,7 @@ type CreateVPCOfferingResponse struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	State                  string `json:"state,omitempty"`
-	SupportsregionLevelvpc bool   `json:"supportsregionLevelvpc,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
 type UpdateVPCOfferingParams struct {
@@ -1571,14 +1487,13 @@ func (s *VPCService) UpdateVPCOffering(p *UpdateVPCOfferingParams) (*UpdateVPCOf
 }
 
 type UpdateVPCOfferingResponse struct {
-	JobID                string `json:"jobid,omitempty"`
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Isdefault            bool   `json:"isdefault,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Service              []struct {
+	JobID       string `json:"jobid,omitempty"`
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Isdefault   bool   `json:"isdefault,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Service     []struct {
 		Capability []struct {
 			Canchooseservicecapability bool   `json:"canchooseservicecapability,omitempty"`
 			Name                       string `json:"name,omitempty"`
@@ -1595,8 +1510,7 @@ type UpdateVPCOfferingResponse struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	State                  string `json:"state,omitempty"`
-	SupportsregionLevelvpc bool   `json:"supportsregionLevelvpc,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
 type DeleteVPCOfferingParams struct {
@@ -1705,7 +1619,7 @@ func (p *ListVPCOfferingsParams) toURLValues() url.Values {
 		u.Set("state", v.(string))
 	}
 	if v, found := p.p["supportedservices"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("supportedservices", vv)
 	}
 	return u
@@ -1882,13 +1796,12 @@ type ListVPCOfferingsResponse struct {
 }
 
 type VPCOffering struct {
-	Created              string `json:"created,omitempty"`
-	Displaytext          string `json:"displaytext,omitempty"`
-	Distributedvpcrouter bool   `json:"distributedvpcrouter,omitempty"`
-	Id                   string `json:"id,omitempty"`
-	Isdefault            bool   `json:"isdefault,omitempty"`
-	Name                 string `json:"name,omitempty"`
-	Service              []struct {
+	Created     string `json:"created,omitempty"`
+	Displaytext string `json:"displaytext,omitempty"`
+	Id          string `json:"id,omitempty"`
+	Isdefault   bool   `json:"isdefault,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Service     []struct {
 		Capability []struct {
 			Canchooseservicecapability bool   `json:"canchooseservicecapability,omitempty"`
 			Name                       string `json:"name,omitempty"`
@@ -1905,8 +1818,7 @@ type VPCOffering struct {
 			State                        string   `json:"state,omitempty"`
 		} `json:"provider,omitempty"`
 	} `json:"service,omitempty"`
-	State                  string `json:"state,omitempty"`
-	SupportsregionLevelvpc bool   `json:"supportsregionLevelvpc,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
 type CreatePrivateGatewayParams struct {

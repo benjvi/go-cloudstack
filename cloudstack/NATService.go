@@ -119,7 +119,7 @@ func (p *CreateIpForwardingRuleParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["endport"]; found {
@@ -241,7 +241,6 @@ func (s *NATService) CreateIpForwardingRule(p *CreateIpForwardingRuleParams) (*C
 type CreateIpForwardingRuleResponse struct {
 	JobID          string `json:"jobid,omitempty"`
 	Cidrlist       string `json:"cidrlist,omitempty"`
-	Fordisplay     bool   `json:"fordisplay,omitempty"`
 	Id             string `json:"id,omitempty"`
 	Ipaddress      string `json:"ipaddress,omitempty"`
 	Ipaddressid    string `json:"ipaddressid,omitempty"`
@@ -532,7 +531,6 @@ type ListIpForwardingRulesResponse struct {
 
 type IpForwardingRule struct {
 	Cidrlist       string `json:"cidrlist,omitempty"`
-	Fordisplay     bool   `json:"fordisplay,omitempty"`
 	Id             string `json:"id,omitempty"`
 	Ipaddress      string `json:"ipaddress,omitempty"`
 	Ipaddressid    string `json:"ipaddressid,omitempty"`

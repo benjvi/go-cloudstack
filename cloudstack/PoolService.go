@@ -269,7 +269,6 @@ type StoragePool struct {
 	Id                   string            `json:"id,omitempty"`
 	Ipaddress            string            `json:"ipaddress,omitempty"`
 	Name                 string            `json:"name,omitempty"`
-	Overprovisionfactor  string            `json:"overprovisionfactor,omitempty"`
 	Path                 string            `json:"path,omitempty"`
 	Podid                string            `json:"podid,omitempty"`
 	Podname              string            `json:"podname,omitempty"`
@@ -483,7 +482,6 @@ type CreateStoragePoolResponse struct {
 	Id                   string            `json:"id,omitempty"`
 	Ipaddress            string            `json:"ipaddress,omitempty"`
 	Name                 string            `json:"name,omitempty"`
-	Overprovisionfactor  string            `json:"overprovisionfactor,omitempty"`
 	Path                 string            `json:"path,omitempty"`
 	Podid                string            `json:"podid,omitempty"`
 	Podname              string            `json:"podname,omitempty"`
@@ -518,7 +516,7 @@ func (p *UpdateStoragePoolParams) toURLValues() url.Values {
 		u.Set("id", v.(string))
 	}
 	if v, found := p.p["tags"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("tags", vv)
 	}
 	return u
@@ -591,7 +589,6 @@ type UpdateStoragePoolResponse struct {
 	Id                   string            `json:"id,omitempty"`
 	Ipaddress            string            `json:"ipaddress,omitempty"`
 	Name                 string            `json:"name,omitempty"`
-	Overprovisionfactor  string            `json:"overprovisionfactor,omitempty"`
 	Path                 string            `json:"path,omitempty"`
 	Podid                string            `json:"podid,omitempty"`
 	Podname              string            `json:"podname,omitempty"`
@@ -761,7 +758,6 @@ type FindStoragePoolsForMigrationResponse struct {
 	Id                   string            `json:"id,omitempty"`
 	Ipaddress            string            `json:"ipaddress,omitempty"`
 	Name                 string            `json:"name,omitempty"`
-	Overprovisionfactor  string            `json:"overprovisionfactor,omitempty"`
 	Path                 string            `json:"path,omitempty"`
 	Podid                string            `json:"podid,omitempty"`
 	Podname              string            `json:"podname,omitempty"`

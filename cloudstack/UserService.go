@@ -887,57 +887,6 @@ type GetUserResponse struct {
 	Username            string `json:"username,omitempty"`
 }
 
-type GetVirtualMachineUserDataParams struct {
-	p map[string]interface{}
-}
-
-func (p *GetVirtualMachineUserDataParams) toURLValues() url.Values {
-	u := url.Values{}
-	if p.p == nil {
-		return u
-	}
-	if v, found := p.p["virtualmachineid"]; found {
-		u.Set("virtualmachineid", v.(string))
-	}
-	return u
-}
-
-func (p *GetVirtualMachineUserDataParams) SetVirtualmachineid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["virtualmachineid"] = v
-	return
-}
-
-// You should always use this function to get a new GetVirtualMachineUserDataParams instance,
-// as then you are sure you have configured all required params
-func (s *UserService) NewGetVirtualMachineUserDataParams(virtualmachineid string) *GetVirtualMachineUserDataParams {
-	p := &GetVirtualMachineUserDataParams{}
-	p.p = make(map[string]interface{})
-	p.p["virtualmachineid"] = virtualmachineid
-	return p
-}
-
-// Returns user data associated with the VM
-func (s *UserService) GetVirtualMachineUserData(p *GetVirtualMachineUserDataParams) (*GetVirtualMachineUserDataResponse, error) {
-	resp, err := s.cs.newRequest("getVirtualMachineUserData", p.toURLValues())
-	if err != nil {
-		return nil, err
-	}
-
-	var r GetVirtualMachineUserDataResponse
-	if err := json.Unmarshal(resp, &r); err != nil {
-		return nil, err
-	}
-	return &r, nil
-}
-
-type GetVirtualMachineUserDataResponse struct {
-	Userdata         string `json:"userdata,omitempty"`
-	Virtualmachineid string `json:"virtualmachineid,omitempty"`
-}
-
 type RegisterUserKeysParams struct {
 	p map[string]interface{}
 }

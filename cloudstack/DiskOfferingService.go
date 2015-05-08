@@ -248,26 +248,24 @@ func (s *DiskOfferingService) CreateDiskOffering(p *CreateDiskOfferingParams) (*
 }
 
 type CreateDiskOfferingResponse struct {
-	CacheMode                 string `json:"cacheMode,omitempty"`
-	Created                   string `json:"created,omitempty"`
-	DiskBytesReadRate         int64  `json:"diskBytesReadRate,omitempty"`
-	DiskBytesWriteRate        int64  `json:"diskBytesWriteRate,omitempty"`
-	DiskIopsReadRate          int64  `json:"diskIopsReadRate,omitempty"`
-	DiskIopsWriteRate         int64  `json:"diskIopsWriteRate,omitempty"`
-	Disksize                  int64  `json:"disksize,omitempty"`
-	Displayoffering           bool   `json:"displayoffering,omitempty"`
-	Displaytext               string `json:"displaytext,omitempty"`
-	Domain                    string `json:"domain,omitempty"`
-	Domainid                  string `json:"domainid,omitempty"`
-	Hypervisorsnapshotreserve int    `json:"hypervisorsnapshotreserve,omitempty"`
-	Id                        string `json:"id,omitempty"`
-	Iscustomized              bool   `json:"iscustomized,omitempty"`
-	Iscustomizediops          bool   `json:"iscustomizediops,omitempty"`
-	Maxiops                   int64  `json:"maxiops,omitempty"`
-	Miniops                   int64  `json:"miniops,omitempty"`
-	Name                      string `json:"name,omitempty"`
-	Storagetype               string `json:"storagetype,omitempty"`
-	Tags                      string `json:"tags,omitempty"`
+	Created            string `json:"created,omitempty"`
+	DiskBytesReadRate  int64  `json:"diskBytesReadRate,omitempty"`
+	DiskBytesWriteRate int64  `json:"diskBytesWriteRate,omitempty"`
+	DiskIopsReadRate   int64  `json:"diskIopsReadRate,omitempty"`
+	DiskIopsWriteRate  int64  `json:"diskIopsWriteRate,omitempty"`
+	Disksize           int64  `json:"disksize,omitempty"`
+	Displayoffering    bool   `json:"displayoffering,omitempty"`
+	Displaytext        string `json:"displaytext,omitempty"`
+	Domain             string `json:"domain,omitempty"`
+	Domainid           string `json:"domainid,omitempty"`
+	Id                 string `json:"id,omitempty"`
+	Iscustomized       bool   `json:"iscustomized,omitempty"`
+	Iscustomizediops   bool   `json:"iscustomizediops,omitempty"`
+	Maxiops            int64  `json:"maxiops,omitempty"`
+	Miniops            int64  `json:"miniops,omitempty"`
+	Name               string `json:"name,omitempty"`
+	Storagetype        string `json:"storagetype,omitempty"`
+	Tags               string `json:"tags,omitempty"`
 }
 
 type UpdateDiskOfferingParams struct {
@@ -363,26 +361,24 @@ func (s *DiskOfferingService) UpdateDiskOffering(p *UpdateDiskOfferingParams) (*
 }
 
 type UpdateDiskOfferingResponse struct {
-	CacheMode                 string `json:"cacheMode,omitempty"`
-	Created                   string `json:"created,omitempty"`
-	DiskBytesReadRate         int64  `json:"diskBytesReadRate,omitempty"`
-	DiskBytesWriteRate        int64  `json:"diskBytesWriteRate,omitempty"`
-	DiskIopsReadRate          int64  `json:"diskIopsReadRate,omitempty"`
-	DiskIopsWriteRate         int64  `json:"diskIopsWriteRate,omitempty"`
-	Disksize                  int64  `json:"disksize,omitempty"`
-	Displayoffering           bool   `json:"displayoffering,omitempty"`
-	Displaytext               string `json:"displaytext,omitempty"`
-	Domain                    string `json:"domain,omitempty"`
-	Domainid                  string `json:"domainid,omitempty"`
-	Hypervisorsnapshotreserve int    `json:"hypervisorsnapshotreserve,omitempty"`
-	Id                        string `json:"id,omitempty"`
-	Iscustomized              bool   `json:"iscustomized,omitempty"`
-	Iscustomizediops          bool   `json:"iscustomizediops,omitempty"`
-	Maxiops                   int64  `json:"maxiops,omitempty"`
-	Miniops                   int64  `json:"miniops,omitempty"`
-	Name                      string `json:"name,omitempty"`
-	Storagetype               string `json:"storagetype,omitempty"`
-	Tags                      string `json:"tags,omitempty"`
+	Created            string `json:"created,omitempty"`
+	DiskBytesReadRate  int64  `json:"diskBytesReadRate,omitempty"`
+	DiskBytesWriteRate int64  `json:"diskBytesWriteRate,omitempty"`
+	DiskIopsReadRate   int64  `json:"diskIopsReadRate,omitempty"`
+	DiskIopsWriteRate  int64  `json:"diskIopsWriteRate,omitempty"`
+	Disksize           int64  `json:"disksize,omitempty"`
+	Displayoffering    bool   `json:"displayoffering,omitempty"`
+	Displaytext        string `json:"displaytext,omitempty"`
+	Domain             string `json:"domain,omitempty"`
+	Domainid           string `json:"domainid,omitempty"`
+	Id                 string `json:"id,omitempty"`
+	Iscustomized       bool   `json:"iscustomized,omitempty"`
+	Iscustomizediops   bool   `json:"iscustomizediops,omitempty"`
+	Maxiops            int64  `json:"maxiops,omitempty"`
+	Miniops            int64  `json:"miniops,omitempty"`
+	Name               string `json:"name,omitempty"`
+	Storagetype        string `json:"storagetype,omitempty"`
+	Tags               string `json:"tags,omitempty"`
 }
 
 type DeleteDiskOfferingParams struct {
@@ -615,24 +611,22 @@ type ListDiskOfferingsResponse struct {
 }
 
 type DiskOffering struct {
-	CacheMode                 string `json:"cacheMode,omitempty"`
-	Created                   string `json:"created,omitempty"`
-	DiskBytesReadRate         int64  `json:"diskBytesReadRate,omitempty"`
-	DiskBytesWriteRate        int64  `json:"diskBytesWriteRate,omitempty"`
-	DiskIopsReadRate          int64  `json:"diskIopsReadRate,omitempty"`
-	DiskIopsWriteRate         int64  `json:"diskIopsWriteRate,omitempty"`
-	Disksize                  int64  `json:"disksize,omitempty"`
-	Displayoffering           bool   `json:"displayoffering,omitempty"`
-	Displaytext               string `json:"displaytext,omitempty"`
-	Domain                    string `json:"domain,omitempty"`
-	Domainid                  string `json:"domainid,omitempty"`
-	Hypervisorsnapshotreserve int    `json:"hypervisorsnapshotreserve,omitempty"`
-	Id                        string `json:"id,omitempty"`
-	Iscustomized              bool   `json:"iscustomized,omitempty"`
-	Iscustomizediops          bool   `json:"iscustomizediops,omitempty"`
-	Maxiops                   int64  `json:"maxiops,omitempty"`
-	Miniops                   int64  `json:"miniops,omitempty"`
-	Name                      string `json:"name,omitempty"`
-	Storagetype               string `json:"storagetype,omitempty"`
-	Tags                      string `json:"tags,omitempty"`
+	Created            string `json:"created,omitempty"`
+	DiskBytesReadRate  int64  `json:"diskBytesReadRate,omitempty"`
+	DiskBytesWriteRate int64  `json:"diskBytesWriteRate,omitempty"`
+	DiskIopsReadRate   int64  `json:"diskIopsReadRate,omitempty"`
+	DiskIopsWriteRate  int64  `json:"diskIopsWriteRate,omitempty"`
+	Disksize           int64  `json:"disksize,omitempty"`
+	Displayoffering    bool   `json:"displayoffering,omitempty"`
+	Displaytext        string `json:"displaytext,omitempty"`
+	Domain             string `json:"domain,omitempty"`
+	Domainid           string `json:"domainid,omitempty"`
+	Id                 string `json:"id,omitempty"`
+	Iscustomized       bool   `json:"iscustomized,omitempty"`
+	Iscustomizediops   bool   `json:"iscustomizediops,omitempty"`
+	Maxiops            int64  `json:"maxiops,omitempty"`
+	Miniops            int64  `json:"miniops,omitempty"`
+	Name               string `json:"name,omitempty"`
+	Storagetype        string `json:"storagetype,omitempty"`
+	Tags               string `json:"tags,omitempty"`
 }

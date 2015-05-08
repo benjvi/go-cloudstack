@@ -820,8 +820,6 @@ type ListUsageRecordsResponse struct {
 type UsageRecord struct {
 	Account          string `json:"account,omitempty"`
 	Accountid        string `json:"accountid,omitempty"`
-	Cpunumber        int64  `json:"cpunumber,omitempty"`
-	Cpuspeed         int64  `json:"cpuspeed,omitempty"`
 	Description      string `json:"description,omitempty"`
 	Domain           string `json:"domain,omitempty"`
 	Domainid         string `json:"domainid,omitempty"`
@@ -829,7 +827,6 @@ type UsageRecord struct {
 	Isdefault        bool   `json:"isdefault,omitempty"`
 	Issourcenat      bool   `json:"issourcenat,omitempty"`
 	Issystem         bool   `json:"issystem,omitempty"`
-	Memory           int64  `json:"memory,omitempty"`
 	Name             string `json:"name,omitempty"`
 	Networkid        string `json:"networkid,omitempty"`
 	Offeringid       string `json:"offeringid,omitempty"`

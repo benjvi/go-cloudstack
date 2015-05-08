@@ -129,18 +129,6 @@ type CreateSecurityGroupResponse struct {
 		Ruleid            string `json:"ruleid,omitempty"`
 		Securitygroupname string `json:"securitygroupname,omitempty"`
 		Startport         int    `json:"startport,omitempty"`
-		Tags              []struct {
-			Account      string `json:"account,omitempty"`
-			Customer     string `json:"customer,omitempty"`
-			Domain       string `json:"domain,omitempty"`
-			Domainid     string `json:"domainid,omitempty"`
-			Key          string `json:"key,omitempty"`
-			Project      string `json:"project,omitempty"`
-			Projectid    string `json:"projectid,omitempty"`
-			Resourceid   string `json:"resourceid,omitempty"`
-			Resourcetype string `json:"resourcetype,omitempty"`
-			Value        string `json:"value,omitempty"`
-		} `json:"tags,omitempty"`
 	} `json:"egressrule,omitempty"`
 	Id          string `json:"id,omitempty"`
 	Ingressrule []struct {
@@ -153,18 +141,6 @@ type CreateSecurityGroupResponse struct {
 		Ruleid            string `json:"ruleid,omitempty"`
 		Securitygroupname string `json:"securitygroupname,omitempty"`
 		Startport         int    `json:"startport,omitempty"`
-		Tags              []struct {
-			Account      string `json:"account,omitempty"`
-			Customer     string `json:"customer,omitempty"`
-			Domain       string `json:"domain,omitempty"`
-			Domainid     string `json:"domainid,omitempty"`
-			Key          string `json:"key,omitempty"`
-			Project      string `json:"project,omitempty"`
-			Projectid    string `json:"projectid,omitempty"`
-			Resourceid   string `json:"resourceid,omitempty"`
-			Resourcetype string `json:"resourcetype,omitempty"`
-			Value        string `json:"value,omitempty"`
-		} `json:"tags,omitempty"`
 	} `json:"ingressrule,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Project   string `json:"project,omitempty"`
@@ -290,7 +266,7 @@ func (p *AuthorizeSecurityGroupIngressParams) toURLValues() url.Values {
 		u.Set("account", v.(string))
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["domainid"]; found {
@@ -486,18 +462,6 @@ type AuthorizeSecurityGroupIngressResponse struct {
 	Ruleid            string `json:"ruleid,omitempty"`
 	Securitygroupname string `json:"securitygroupname,omitempty"`
 	Startport         int    `json:"startport,omitempty"`
-	Tags              []struct {
-		Account      string `json:"account,omitempty"`
-		Customer     string `json:"customer,omitempty"`
-		Domain       string `json:"domain,omitempty"`
-		Domainid     string `json:"domainid,omitempty"`
-		Key          string `json:"key,omitempty"`
-		Project      string `json:"project,omitempty"`
-		Projectid    string `json:"projectid,omitempty"`
-		Resourceid   string `json:"resourceid,omitempty"`
-		Resourcetype string `json:"resourcetype,omitempty"`
-		Value        string `json:"value,omitempty"`
-	} `json:"tags,omitempty"`
 }
 
 type RevokeSecurityGroupIngressParams struct {
@@ -582,7 +546,7 @@ func (p *AuthorizeSecurityGroupEgressParams) toURLValues() url.Values {
 		u.Set("account", v.(string))
 	}
 	if v, found := p.p["cidrlist"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("cidrlist", vv)
 	}
 	if v, found := p.p["domainid"]; found {
@@ -778,18 +742,6 @@ type AuthorizeSecurityGroupEgressResponse struct {
 	Ruleid            string `json:"ruleid,omitempty"`
 	Securitygroupname string `json:"securitygroupname,omitempty"`
 	Startport         int    `json:"startport,omitempty"`
-	Tags              []struct {
-		Account      string `json:"account,omitempty"`
-		Customer     string `json:"customer,omitempty"`
-		Domain       string `json:"domain,omitempty"`
-		Domainid     string `json:"domainid,omitempty"`
-		Key          string `json:"key,omitempty"`
-		Project      string `json:"project,omitempty"`
-		Projectid    string `json:"projectid,omitempty"`
-		Resourceid   string `json:"resourceid,omitempty"`
-		Resourcetype string `json:"resourcetype,omitempty"`
-		Value        string `json:"value,omitempty"`
-	} `json:"tags,omitempty"`
 }
 
 type RevokeSecurityGroupEgressParams struct {
@@ -1127,18 +1079,6 @@ type SecurityGroup struct {
 		Ruleid            string `json:"ruleid,omitempty"`
 		Securitygroupname string `json:"securitygroupname,omitempty"`
 		Startport         int    `json:"startport,omitempty"`
-		Tags              []struct {
-			Account      string `json:"account,omitempty"`
-			Customer     string `json:"customer,omitempty"`
-			Domain       string `json:"domain,omitempty"`
-			Domainid     string `json:"domainid,omitempty"`
-			Key          string `json:"key,omitempty"`
-			Project      string `json:"project,omitempty"`
-			Projectid    string `json:"projectid,omitempty"`
-			Resourceid   string `json:"resourceid,omitempty"`
-			Resourcetype string `json:"resourcetype,omitempty"`
-			Value        string `json:"value,omitempty"`
-		} `json:"tags,omitempty"`
 	} `json:"egressrule,omitempty"`
 	Id          string `json:"id,omitempty"`
 	Ingressrule []struct {
@@ -1151,18 +1091,6 @@ type SecurityGroup struct {
 		Ruleid            string `json:"ruleid,omitempty"`
 		Securitygroupname string `json:"securitygroupname,omitempty"`
 		Startport         int    `json:"startport,omitempty"`
-		Tags              []struct {
-			Account      string `json:"account,omitempty"`
-			Customer     string `json:"customer,omitempty"`
-			Domain       string `json:"domain,omitempty"`
-			Domainid     string `json:"domainid,omitempty"`
-			Key          string `json:"key,omitempty"`
-			Project      string `json:"project,omitempty"`
-			Projectid    string `json:"projectid,omitempty"`
-			Resourceid   string `json:"resourceid,omitempty"`
-			Resourcetype string `json:"resourcetype,omitempty"`
-			Value        string `json:"value,omitempty"`
-		} `json:"tags,omitempty"`
 	} `json:"ingressrule,omitempty"`
 	Name      string `json:"name,omitempty"`
 	Project   string `json:"project,omitempty"`

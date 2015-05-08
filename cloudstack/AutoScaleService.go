@@ -267,7 +267,7 @@ func (p *CreateAutoScalePolicyParams) toURLValues() url.Values {
 		u.Set("action", v.(string))
 	}
 	if v, found := p.p["conditionids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("conditionids", vv)
 	}
 	if v, found := p.p["duration"]; found {
@@ -398,10 +398,6 @@ func (p *CreateAutoScaleVmProfileParams) toURLValues() url.Values {
 		vv := strconv.Itoa(v.(int))
 		u.Set("destroyvmgraceperiod", vv)
 	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["otherdeployparams"]; found {
 		u.Set("otherdeployparams", v.(string))
 	}
@@ -438,14 +434,6 @@ func (p *CreateAutoScaleVmProfileParams) SetDestroyvmgraceperiod(v int) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["destroyvmgraceperiod"] = v
-	return
-}
-
-func (p *CreateAutoScaleVmProfileParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -535,7 +523,6 @@ type CreateAutoScaleVmProfileResponse struct {
 	Destroyvmgraceperiod int    `json:"destroyvmgraceperiod,omitempty"`
 	Domain               string `json:"domain,omitempty"`
 	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
 	Id                   string `json:"id,omitempty"`
 	Otherdeployparams    string `json:"otherdeployparams,omitempty"`
 	Project              string `json:"project,omitempty"`
@@ -554,10 +541,6 @@ func (p *CreateAutoScaleVmGroupParams) toURLValues() url.Values {
 	if p.p == nil {
 		return u
 	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["interval"]; found {
 		vv := strconv.Itoa(v.(int))
 		u.Set("interval", vv)
@@ -574,25 +557,17 @@ func (p *CreateAutoScaleVmGroupParams) toURLValues() url.Values {
 		u.Set("minmembers", vv)
 	}
 	if v, found := p.p["scaledownpolicyids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("scaledownpolicyids", vv)
 	}
 	if v, found := p.p["scaleuppolicyids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("scaleuppolicyids", vv)
 	}
 	if v, found := p.p["vmprofileid"]; found {
 		u.Set("vmprofileid", v.(string))
 	}
 	return u
-}
-
-func (p *CreateAutoScaleVmGroupParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
-	return
 }
 
 func (p *CreateAutoScaleVmGroupParams) SetInterval(v int) {
@@ -706,7 +681,6 @@ type CreateAutoScaleVmGroupResponse struct {
 	Account           string   `json:"account,omitempty"`
 	Domain            string   `json:"domain,omitempty"`
 	Domainid          string   `json:"domainid,omitempty"`
-	Fordisplay        bool     `json:"fordisplay,omitempty"`
 	Id                string   `json:"id,omitempty"`
 	Interval          int      `json:"interval,omitempty"`
 	Lbruleid          string   `json:"lbruleid,omitempty"`
@@ -1663,10 +1637,6 @@ func (p *ListAutoScaleVmProfilesParams) toURLValues() url.Values {
 	if v, found := p.p["domainid"]; found {
 		u.Set("domainid", v.(string))
 	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
 	}
@@ -1695,14 +1665,8 @@ func (p *ListAutoScaleVmProfilesParams) toURLValues() url.Values {
 	if v, found := p.p["projectid"]; found {
 		u.Set("projectid", v.(string))
 	}
-	if v, found := p.p["serviceofferingid"]; found {
-		u.Set("serviceofferingid", v.(string))
-	}
 	if v, found := p.p["templateid"]; found {
 		u.Set("templateid", v.(string))
-	}
-	if v, found := p.p["zoneid"]; found {
-		u.Set("zoneid", v.(string))
 	}
 	return u
 }
@@ -1720,14 +1684,6 @@ func (p *ListAutoScaleVmProfilesParams) SetDomainid(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["domainid"] = v
-	return
-}
-
-func (p *ListAutoScaleVmProfilesParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -1795,27 +1751,11 @@ func (p *ListAutoScaleVmProfilesParams) SetProjectid(v string) {
 	return
 }
 
-func (p *ListAutoScaleVmProfilesParams) SetServiceofferingid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["serviceofferingid"] = v
-	return
-}
-
 func (p *ListAutoScaleVmProfilesParams) SetTemplateid(v string) {
 	if p.p == nil {
 		p.p = make(map[string]interface{})
 	}
 	p.p["templateid"] = v
-	return
-}
-
-func (p *ListAutoScaleVmProfilesParams) SetZoneid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["zoneid"] = v
 	return
 }
 
@@ -1879,7 +1819,6 @@ type AutoScaleVmProfile struct {
 	Destroyvmgraceperiod int    `json:"destroyvmgraceperiod,omitempty"`
 	Domain               string `json:"domain,omitempty"`
 	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
 	Id                   string `json:"id,omitempty"`
 	Otherdeployparams    string `json:"otherdeployparams,omitempty"`
 	Project              string `json:"project,omitempty"`
@@ -1903,10 +1842,6 @@ func (p *ListAutoScaleVmGroupsParams) toURLValues() url.Values {
 	}
 	if v, found := p.p["domainid"]; found {
 		u.Set("domainid", v.(string))
-	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
 	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
@@ -1961,14 +1896,6 @@ func (p *ListAutoScaleVmGroupsParams) SetDomainid(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["domainid"] = v
-	return
-}
-
-func (p *ListAutoScaleVmGroupsParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -2118,7 +2045,6 @@ type AutoScaleVmGroup struct {
 	Account           string   `json:"account,omitempty"`
 	Domain            string   `json:"domain,omitempty"`
 	Domainid          string   `json:"domainid,omitempty"`
-	Fordisplay        bool     `json:"fordisplay,omitempty"`
 	Id                string   `json:"id,omitempty"`
 	Interval          int      `json:"interval,omitempty"`
 	Lbruleid          string   `json:"lbruleid,omitempty"`
@@ -2205,7 +2131,6 @@ type EnableAutoScaleVmGroupResponse struct {
 	Account           string   `json:"account,omitempty"`
 	Domain            string   `json:"domain,omitempty"`
 	Domainid          string   `json:"domainid,omitempty"`
-	Fordisplay        bool     `json:"fordisplay,omitempty"`
 	Id                string   `json:"id,omitempty"`
 	Interval          int      `json:"interval,omitempty"`
 	Lbruleid          string   `json:"lbruleid,omitempty"`
@@ -2292,7 +2217,6 @@ type DisableAutoScaleVmGroupResponse struct {
 	Account           string   `json:"account,omitempty"`
 	Domain            string   `json:"domain,omitempty"`
 	Domainid          string   `json:"domainid,omitempty"`
-	Fordisplay        bool     `json:"fordisplay,omitempty"`
 	Id                string   `json:"id,omitempty"`
 	Interval          int      `json:"interval,omitempty"`
 	Lbruleid          string   `json:"lbruleid,omitempty"`
@@ -2316,7 +2240,7 @@ func (p *UpdateAutoScalePolicyParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["conditionids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("conditionids", vv)
 	}
 	if v, found := p.p["duration"]; found {
@@ -2444,16 +2368,9 @@ func (p *UpdateAutoScaleVmProfileParams) toURLValues() url.Values {
 			i++
 		}
 	}
-	if v, found := p.p["customid"]; found {
-		u.Set("customid", v.(string))
-	}
 	if v, found := p.p["destroyvmgraceperiod"]; found {
 		vv := strconv.Itoa(v.(int))
 		u.Set("destroyvmgraceperiod", vv)
-	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
 	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
@@ -2480,27 +2397,11 @@ func (p *UpdateAutoScaleVmProfileParams) SetCounterparam(v map[string]string) {
 	return
 }
 
-func (p *UpdateAutoScaleVmProfileParams) SetCustomid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["customid"] = v
-	return
-}
-
 func (p *UpdateAutoScaleVmProfileParams) SetDestroyvmgraceperiod(v int) {
 	if p.p == nil {
 		p.p = make(map[string]interface{})
 	}
 	p.p["destroyvmgraceperiod"] = v
-	return
-}
-
-func (p *UpdateAutoScaleVmProfileParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
 	return
 }
 
@@ -2572,7 +2473,6 @@ type UpdateAutoScaleVmProfileResponse struct {
 	Destroyvmgraceperiod int    `json:"destroyvmgraceperiod,omitempty"`
 	Domain               string `json:"domain,omitempty"`
 	Domainid             string `json:"domainid,omitempty"`
-	Fordisplay           bool   `json:"fordisplay,omitempty"`
 	Id                   string `json:"id,omitempty"`
 	Otherdeployparams    string `json:"otherdeployparams,omitempty"`
 	Project              string `json:"project,omitempty"`
@@ -2591,13 +2491,6 @@ func (p *UpdateAutoScaleVmGroupParams) toURLValues() url.Values {
 	if p.p == nil {
 		return u
 	}
-	if v, found := p.p["customid"]; found {
-		u.Set("customid", v.(string))
-	}
-	if v, found := p.p["fordisplay"]; found {
-		vv := strconv.FormatBool(v.(bool))
-		u.Set("fordisplay", vv)
-	}
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
 	}
@@ -2614,30 +2507,14 @@ func (p *UpdateAutoScaleVmGroupParams) toURLValues() url.Values {
 		u.Set("minmembers", vv)
 	}
 	if v, found := p.p["scaledownpolicyids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("scaledownpolicyids", vv)
 	}
 	if v, found := p.p["scaleuppolicyids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("scaleuppolicyids", vv)
 	}
 	return u
-}
-
-func (p *UpdateAutoScaleVmGroupParams) SetCustomid(v string) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["customid"] = v
-	return
-}
-
-func (p *UpdateAutoScaleVmGroupParams) SetFordisplay(v bool) {
-	if p.p == nil {
-		p.p = make(map[string]interface{})
-	}
-	p.p["fordisplay"] = v
-	return
 }
 
 func (p *UpdateAutoScaleVmGroupParams) SetId(v string) {
@@ -2738,7 +2615,6 @@ type UpdateAutoScaleVmGroupResponse struct {
 	Account           string   `json:"account,omitempty"`
 	Domain            string   `json:"domain,omitempty"`
 	Domainid          string   `json:"domainid,omitempty"`
-	Fordisplay        bool     `json:"fordisplay,omitempty"`
 	Id                string   `json:"id,omitempty"`
 	Interval          int      `json:"interval,omitempty"`
 	Lbruleid          string   `json:"lbruleid,omitempty"`

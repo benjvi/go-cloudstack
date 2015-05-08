@@ -222,7 +222,6 @@ type CreateAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -471,7 +470,6 @@ type UpdateAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -648,7 +646,6 @@ type DisableAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -789,7 +786,6 @@ type EnableAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -921,7 +917,6 @@ type LockAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -1232,7 +1227,6 @@ type Account struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`
@@ -1399,7 +1393,6 @@ type MarkDefaultZoneForAccountResponse struct {
 	Defaultzoneid             string            `json:"defaultzoneid,omitempty"`
 	Domain                    string            `json:"domain,omitempty"`
 	Domainid                  string            `json:"domainid,omitempty"`
-	Groups                    []string          `json:"groups,omitempty"`
 	Id                        string            `json:"id,omitempty"`
 	Ipavailable               string            `json:"ipavailable,omitempty"`
 	Iplimit                   string            `json:"iplimit,omitempty"`

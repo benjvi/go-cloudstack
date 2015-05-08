@@ -506,11 +506,11 @@ func (p *UpdateVMAffinityGroupParams) toURLValues() url.Values {
 		return u
 	}
 	if v, found := p.p["affinitygroupids"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("affinitygroupids", vv)
 	}
 	if v, found := p.p["affinitygroupnames"]; found {
-		vv := strings.Join(v.([]string), ", ")
+		vv := strings.Join(v.([]string), ",")
 		u.Set("affinitygroupnames", vv)
 	}
 	if v, found := p.p["id"]; found {
@@ -610,8 +610,6 @@ type UpdateVMAffinityGroupResponse struct {
 	Diskiowrite           int64             `json:"diskiowrite,omitempty"`
 	Diskkbsread           int64             `json:"diskkbsread,omitempty"`
 	Diskkbswrite          int64             `json:"diskkbswrite,omitempty"`
-	Diskofferingid        string            `json:"diskofferingid,omitempty"`
-	Diskofferingname      string            `json:"diskofferingname,omitempty"`
 	Displayname           string            `json:"displayname,omitempty"`
 	Displayvm             bool              `json:"displayvm,omitempty"`
 	Domain                string            `json:"domain,omitempty"`
@@ -636,26 +634,23 @@ type UpdateVMAffinityGroupResponse struct {
 	Networkkbsread        int64             `json:"networkkbsread,omitempty"`
 	Networkkbswrite       int64             `json:"networkkbswrite,omitempty"`
 	Nic                   []struct {
-		Broadcasturi     string   `json:"broadcasturi,omitempty"`
-		Deviceid         string   `json:"deviceid,omitempty"`
-		Gateway          string   `json:"gateway,omitempty"`
-		Id               string   `json:"id,omitempty"`
-		Ip6address       string   `json:"ip6address,omitempty"`
-		Ip6cidr          string   `json:"ip6cidr,omitempty"`
-		Ip6gateway       string   `json:"ip6gateway,omitempty"`
-		Ipaddress        string   `json:"ipaddress,omitempty"`
-		Isdefault        bool     `json:"isdefault,omitempty"`
-		Isolationuri     string   `json:"isolationuri,omitempty"`
-		Macaddress       string   `json:"macaddress,omitempty"`
-		Netmask          string   `json:"netmask,omitempty"`
-		Networkid        string   `json:"networkid,omitempty"`
-		Networkname      string   `json:"networkname,omitempty"`
-		Secondaryip      []string `json:"secondaryip,omitempty"`
-		Traffictype      string   `json:"traffictype,omitempty"`
-		Type             string   `json:"type,omitempty"`
-		Virtualmachineid string   `json:"virtualmachineid,omitempty"`
+		Broadcasturi string   `json:"broadcasturi,omitempty"`
+		Gateway      string   `json:"gateway,omitempty"`
+		Id           string   `json:"id,omitempty"`
+		Ip6address   string   `json:"ip6address,omitempty"`
+		Ip6cidr      string   `json:"ip6cidr,omitempty"`
+		Ip6gateway   string   `json:"ip6gateway,omitempty"`
+		Ipaddress    string   `json:"ipaddress,omitempty"`
+		Isdefault    bool     `json:"isdefault,omitempty"`
+		Isolationuri string   `json:"isolationuri,omitempty"`
+		Macaddress   string   `json:"macaddress,omitempty"`
+		Netmask      string   `json:"netmask,omitempty"`
+		Networkid    string   `json:"networkid,omitempty"`
+		Networkname  string   `json:"networkname,omitempty"`
+		Secondaryip  []string `json:"secondaryip,omitempty"`
+		Traffictype  string   `json:"traffictype,omitempty"`
+		Type         string   `json:"type,omitempty"`
 	} `json:"nic,omitempty"`
-	Ostypeid        int64  `json:"ostypeid,omitempty"`
 	Password        string `json:"password,omitempty"`
 	Passwordenabled bool   `json:"passwordenabled,omitempty"`
 	Project         string `json:"project,omitempty"`
@@ -679,18 +674,6 @@ type UpdateVMAffinityGroupResponse struct {
 			Ruleid            string `json:"ruleid,omitempty"`
 			Securitygroupname string `json:"securitygroupname,omitempty"`
 			Startport         int    `json:"startport,omitempty"`
-			Tags              []struct {
-				Account      string `json:"account,omitempty"`
-				Customer     string `json:"customer,omitempty"`
-				Domain       string `json:"domain,omitempty"`
-				Domainid     string `json:"domainid,omitempty"`
-				Key          string `json:"key,omitempty"`
-				Project      string `json:"project,omitempty"`
-				Projectid    string `json:"projectid,omitempty"`
-				Resourceid   string `json:"resourceid,omitempty"`
-				Resourcetype string `json:"resourcetype,omitempty"`
-				Value        string `json:"value,omitempty"`
-			} `json:"tags,omitempty"`
 		} `json:"egressrule,omitempty"`
 		Id          string `json:"id,omitempty"`
 		Ingressrule []struct {
@@ -703,18 +686,6 @@ type UpdateVMAffinityGroupResponse struct {
 			Ruleid            string `json:"ruleid,omitempty"`
 			Securitygroupname string `json:"securitygroupname,omitempty"`
 			Startport         int    `json:"startport,omitempty"`
-			Tags              []struct {
-				Account      string `json:"account,omitempty"`
-				Customer     string `json:"customer,omitempty"`
-				Domain       string `json:"domain,omitempty"`
-				Domainid     string `json:"domainid,omitempty"`
-				Key          string `json:"key,omitempty"`
-				Project      string `json:"project,omitempty"`
-				Projectid    string `json:"projectid,omitempty"`
-				Resourceid   string `json:"resourceid,omitempty"`
-				Resourcetype string `json:"resourcetype,omitempty"`
-				Value        string `json:"value,omitempty"`
-			} `json:"tags,omitempty"`
 		} `json:"ingressrule,omitempty"`
 		Name      string `json:"name,omitempty"`
 		Project   string `json:"project,omitempty"`
@@ -751,7 +722,6 @@ type UpdateVMAffinityGroupResponse struct {
 	Templatedisplaytext string `json:"templatedisplaytext,omitempty"`
 	Templateid          string `json:"templateid,omitempty"`
 	Templatename        string `json:"templatename,omitempty"`
-	Vgpu                string `json:"vgpu,omitempty"`
 	Zoneid              string `json:"zoneid,omitempty"`
 	Zonename            string `json:"zonename,omitempty"`
 }
