@@ -224,7 +224,7 @@ func (s *TemplateService) NewCreateTemplateParams(displaytext string, name strin
 }
 
 // Creates a template of a virtual machine. The virtual machine must be in a STOPPED state. A template created from this command is automatically designated as a private template visible to the account that created it.
-func (s *TemplateService) CreateTemplate(p *CreateTemplateParams) (*CreateTemplateResponse, error) {
+func (s *TemplateService) CreateTemplate(p *CreateTemplateParams, wait bool) (*CreateTemplateResponse, error) {
 	resp, err := s.cs.newRequest("createTemplate", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -235,8 +235,8 @@ func (s *TemplateService) CreateTemplate(p *CreateTemplateParams) (*CreateTempla
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -255,6 +255,30 @@ func (s *TemplateService) CreateTemplate(p *CreateTemplateParams) (*CreateTempla
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *TemplateService) WaitForCreateTemplate(jobid string) (*CreateTemplateResponse, error) {
+	var r CreateTemplateResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -918,7 +942,7 @@ func (s *TemplateService) NewCopyTemplateParams(destzoneid string, id string) *C
 }
 
 // Copies a template from one zone to another.
-func (s *TemplateService) CopyTemplate(p *CopyTemplateParams) (*CopyTemplateResponse, error) {
+func (s *TemplateService) CopyTemplate(p *CopyTemplateParams, wait bool) (*CopyTemplateResponse, error) {
 	resp, err := s.cs.newRequest("copyTemplate", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -929,8 +953,8 @@ func (s *TemplateService) CopyTemplate(p *CopyTemplateParams) (*CopyTemplateResp
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -949,6 +973,30 @@ func (s *TemplateService) CopyTemplate(p *CopyTemplateParams) (*CopyTemplateResp
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *TemplateService) WaitForCopyTemplate(jobid string) (*CopyTemplateResponse, error) {
+	var r CopyTemplateResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1048,7 +1096,7 @@ func (s *TemplateService) NewDeleteTemplateParams(id string) *DeleteTemplatePara
 }
 
 // Deletes a template from the system. All virtual machines using the deleted template will not be affected.
-func (s *TemplateService) DeleteTemplate(p *DeleteTemplateParams) (*DeleteTemplateResponse, error) {
+func (s *TemplateService) DeleteTemplate(p *DeleteTemplateParams, wait bool) (*DeleteTemplateResponse, error) {
 	resp, err := s.cs.newRequest("deleteTemplate", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1059,8 +1107,8 @@ func (s *TemplateService) DeleteTemplate(p *DeleteTemplateParams) (*DeleteTempla
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1074,6 +1122,25 @@ func (s *TemplateService) DeleteTemplate(p *DeleteTemplateParams) (*DeleteTempla
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *TemplateService) WaitForDeleteTemplate(jobid string) (*DeleteTemplateResponse, error) {
+	var r DeleteTemplateResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1699,7 +1766,7 @@ func (s *TemplateService) NewExtractTemplateParams(id string, mode string) *Extr
 }
 
 // Extracts a template
-func (s *TemplateService) ExtractTemplate(p *ExtractTemplateParams) (*ExtractTemplateResponse, error) {
+func (s *TemplateService) ExtractTemplate(p *ExtractTemplateParams, wait bool) (*ExtractTemplateResponse, error) {
 	resp, err := s.cs.newRequest("extractTemplate", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1710,8 +1777,8 @@ func (s *TemplateService) ExtractTemplate(p *ExtractTemplateParams) (*ExtractTem
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1730,6 +1797,30 @@ func (s *TemplateService) ExtractTemplate(p *ExtractTemplateParams) (*ExtractTem
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *TemplateService) WaitForExtractTemplate(jobid string) (*ExtractTemplateResponse, error) {
+	var r ExtractTemplateResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2123,7 +2214,7 @@ func (s *TemplateService) NewInstantiateUcsTemplateAndAssocaciateToBladeParams(b
 }
 
 // create a profile of template and associate to a blade
-func (s *TemplateService) InstantiateUcsTemplateAndAssocaciateToBlade(p *InstantiateUcsTemplateAndAssocaciateToBladeParams) (*InstantiateUcsTemplateAndAssocaciateToBladeResponse, error) {
+func (s *TemplateService) InstantiateUcsTemplateAndAssocaciateToBlade(p *InstantiateUcsTemplateAndAssocaciateToBladeParams, wait bool) (*InstantiateUcsTemplateAndAssocaciateToBladeResponse, error) {
 	resp, err := s.cs.newRequest("instantiateUcsTemplateAndAssocaciateToBlade", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2134,8 +2225,8 @@ func (s *TemplateService) InstantiateUcsTemplateAndAssocaciateToBlade(p *Instant
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2154,6 +2245,30 @@ func (s *TemplateService) InstantiateUcsTemplateAndAssocaciateToBlade(p *Instant
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *TemplateService) WaitForInstantiateUcsTemplateAndAssocaciateToBlade(jobid string) (*InstantiateUcsTemplateAndAssocaciateToBladeResponse, error) {
+	var r InstantiateUcsTemplateAndAssocaciateToBladeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

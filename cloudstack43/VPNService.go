@@ -102,7 +102,7 @@ func (s *VPNService) NewCreateRemoteAccessVpnParams(publicipid string) *CreateRe
 }
 
 // Creates a l2tp/ipsec remote access vpn
-func (s *VPNService) CreateRemoteAccessVpn(p *CreateRemoteAccessVpnParams) (*CreateRemoteAccessVpnResponse, error) {
+func (s *VPNService) CreateRemoteAccessVpn(p *CreateRemoteAccessVpnParams, wait bool) (*CreateRemoteAccessVpnResponse, error) {
 	resp, err := s.cs.newRequest("createRemoteAccessVpn", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -113,8 +113,8 @@ func (s *VPNService) CreateRemoteAccessVpn(p *CreateRemoteAccessVpnParams) (*Cre
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -133,6 +133,30 @@ func (s *VPNService) CreateRemoteAccessVpn(p *CreateRemoteAccessVpnParams) (*Cre
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForCreateRemoteAccessVpn(jobid string) (*CreateRemoteAccessVpnResponse, error) {
+	var r CreateRemoteAccessVpnResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -185,7 +209,7 @@ func (s *VPNService) NewDeleteRemoteAccessVpnParams(publicipid string) *DeleteRe
 }
 
 // Destroys a l2tp/ipsec remote access vpn
-func (s *VPNService) DeleteRemoteAccessVpn(p *DeleteRemoteAccessVpnParams) (*DeleteRemoteAccessVpnResponse, error) {
+func (s *VPNService) DeleteRemoteAccessVpn(p *DeleteRemoteAccessVpnParams, wait bool) (*DeleteRemoteAccessVpnResponse, error) {
 	resp, err := s.cs.newRequest("deleteRemoteAccessVpn", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -196,8 +220,8 @@ func (s *VPNService) DeleteRemoteAccessVpn(p *DeleteRemoteAccessVpnParams) (*Del
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -211,6 +235,25 @@ func (s *VPNService) DeleteRemoteAccessVpn(p *DeleteRemoteAccessVpnParams) (*Del
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForDeleteRemoteAccessVpn(jobid string) (*DeleteRemoteAccessVpnResponse, error) {
+	var r DeleteRemoteAccessVpnResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -504,7 +547,7 @@ func (s *VPNService) NewAddVpnUserParams(password string, username string) *AddV
 }
 
 // Adds vpn users
-func (s *VPNService) AddVpnUser(p *AddVpnUserParams) (*AddVpnUserResponse, error) {
+func (s *VPNService) AddVpnUser(p *AddVpnUserParams, wait bool) (*AddVpnUserResponse, error) {
 	resp, err := s.cs.newRequest("addVpnUser", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -515,8 +558,8 @@ func (s *VPNService) AddVpnUser(p *AddVpnUserParams) (*AddVpnUserResponse, error
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -535,6 +578,30 @@ func (s *VPNService) AddVpnUser(p *AddVpnUserParams) (*AddVpnUserResponse, error
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForAddVpnUser(jobid string) (*AddVpnUserResponse, error) {
+	var r AddVpnUserResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -617,7 +684,7 @@ func (s *VPNService) NewRemoveVpnUserParams(username string) *RemoveVpnUserParam
 }
 
 // Removes vpn user
-func (s *VPNService) RemoveVpnUser(p *RemoveVpnUserParams) (*RemoveVpnUserResponse, error) {
+func (s *VPNService) RemoveVpnUser(p *RemoveVpnUserParams, wait bool) (*RemoveVpnUserResponse, error) {
 	resp, err := s.cs.newRequest("removeVpnUser", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -628,8 +695,8 @@ func (s *VPNService) RemoveVpnUser(p *RemoveVpnUserParams) (*RemoveVpnUserRespon
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -643,6 +710,25 @@ func (s *VPNService) RemoveVpnUser(p *RemoveVpnUserParams) (*RemoveVpnUserRespon
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForRemoveVpnUser(jobid string) (*RemoveVpnUserResponse, error) {
+	var r RemoveVpnUserResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -994,7 +1080,7 @@ func (s *VPNService) NewCreateVpnCustomerGatewayParams(cidrlist string, esppolic
 }
 
 // Creates site to site vpn customer gateway
-func (s *VPNService) CreateVpnCustomerGateway(p *CreateVpnCustomerGatewayParams) (*CreateVpnCustomerGatewayResponse, error) {
+func (s *VPNService) CreateVpnCustomerGateway(p *CreateVpnCustomerGatewayParams, wait bool) (*CreateVpnCustomerGatewayResponse, error) {
 	resp, err := s.cs.newRequest("createVpnCustomerGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1005,8 +1091,8 @@ func (s *VPNService) CreateVpnCustomerGateway(p *CreateVpnCustomerGatewayParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1025,6 +1111,30 @@ func (s *VPNService) CreateVpnCustomerGateway(p *CreateVpnCustomerGatewayParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForCreateVpnCustomerGateway(jobid string) (*CreateVpnCustomerGatewayResponse, error) {
+	var r CreateVpnCustomerGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1083,7 +1193,7 @@ func (s *VPNService) NewCreateVpnGatewayParams(vpcid string) *CreateVpnGatewayPa
 }
 
 // Creates site to site vpn local gateway
-func (s *VPNService) CreateVpnGateway(p *CreateVpnGatewayParams) (*CreateVpnGatewayResponse, error) {
+func (s *VPNService) CreateVpnGateway(p *CreateVpnGatewayParams, wait bool) (*CreateVpnGatewayResponse, error) {
 	resp, err := s.cs.newRequest("createVpnGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1094,8 +1204,8 @@ func (s *VPNService) CreateVpnGateway(p *CreateVpnGatewayParams) (*CreateVpnGate
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1114,6 +1224,30 @@ func (s *VPNService) CreateVpnGateway(p *CreateVpnGatewayParams) (*CreateVpnGate
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForCreateVpnGateway(jobid string) (*CreateVpnGatewayResponse, error) {
+	var r CreateVpnGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1188,7 +1322,7 @@ func (s *VPNService) NewCreateVpnConnectionParams(s2scustomergatewayid string, s
 }
 
 // Create site to site vpn connection
-func (s *VPNService) CreateVpnConnection(p *CreateVpnConnectionParams) (*CreateVpnConnectionResponse, error) {
+func (s *VPNService) CreateVpnConnection(p *CreateVpnConnectionParams, wait bool) (*CreateVpnConnectionResponse, error) {
 	resp, err := s.cs.newRequest("createVpnConnection", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1199,8 +1333,8 @@ func (s *VPNService) CreateVpnConnection(p *CreateVpnConnectionParams) (*CreateV
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1219,6 +1353,30 @@ func (s *VPNService) CreateVpnConnection(p *CreateVpnConnectionParams) (*CreateV
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForCreateVpnConnection(jobid string) (*CreateVpnConnectionResponse, error) {
+	var r CreateVpnConnectionResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1281,7 +1439,7 @@ func (s *VPNService) NewDeleteVpnCustomerGatewayParams(id string) *DeleteVpnCust
 }
 
 // Delete site to site vpn customer gateway
-func (s *VPNService) DeleteVpnCustomerGateway(p *DeleteVpnCustomerGatewayParams) (*DeleteVpnCustomerGatewayResponse, error) {
+func (s *VPNService) DeleteVpnCustomerGateway(p *DeleteVpnCustomerGatewayParams, wait bool) (*DeleteVpnCustomerGatewayResponse, error) {
 	resp, err := s.cs.newRequest("deleteVpnCustomerGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1292,8 +1450,8 @@ func (s *VPNService) DeleteVpnCustomerGateway(p *DeleteVpnCustomerGatewayParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1307,6 +1465,25 @@ func (s *VPNService) DeleteVpnCustomerGateway(p *DeleteVpnCustomerGatewayParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForDeleteVpnCustomerGateway(jobid string) (*DeleteVpnCustomerGatewayResponse, error) {
+	var r DeleteVpnCustomerGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1350,7 +1527,7 @@ func (s *VPNService) NewDeleteVpnGatewayParams(id string) *DeleteVpnGatewayParam
 }
 
 // Delete site to site vpn gateway
-func (s *VPNService) DeleteVpnGateway(p *DeleteVpnGatewayParams) (*DeleteVpnGatewayResponse, error) {
+func (s *VPNService) DeleteVpnGateway(p *DeleteVpnGatewayParams, wait bool) (*DeleteVpnGatewayResponse, error) {
 	resp, err := s.cs.newRequest("deleteVpnGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1361,8 +1538,8 @@ func (s *VPNService) DeleteVpnGateway(p *DeleteVpnGatewayParams) (*DeleteVpnGate
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1376,6 +1553,25 @@ func (s *VPNService) DeleteVpnGateway(p *DeleteVpnGatewayParams) (*DeleteVpnGate
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForDeleteVpnGateway(jobid string) (*DeleteVpnGatewayResponse, error) {
+	var r DeleteVpnGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1419,7 +1615,7 @@ func (s *VPNService) NewDeleteVpnConnectionParams(id string) *DeleteVpnConnectio
 }
 
 // Delete site to site vpn connection
-func (s *VPNService) DeleteVpnConnection(p *DeleteVpnConnectionParams) (*DeleteVpnConnectionResponse, error) {
+func (s *VPNService) DeleteVpnConnection(p *DeleteVpnConnectionParams, wait bool) (*DeleteVpnConnectionResponse, error) {
 	resp, err := s.cs.newRequest("deleteVpnConnection", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1430,8 +1626,8 @@ func (s *VPNService) DeleteVpnConnection(p *DeleteVpnConnectionParams) (*DeleteV
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1445,6 +1641,25 @@ func (s *VPNService) DeleteVpnConnection(p *DeleteVpnConnectionParams) (*DeleteV
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForDeleteVpnConnection(jobid string) (*DeleteVpnConnectionResponse, error) {
+	var r DeleteVpnConnectionResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1617,7 +1832,7 @@ func (s *VPNService) NewUpdateVpnCustomerGatewayParams(cidrlist string, esppolic
 }
 
 // Update site to site vpn customer gateway
-func (s *VPNService) UpdateVpnCustomerGateway(p *UpdateVpnCustomerGatewayParams) (*UpdateVpnCustomerGatewayResponse, error) {
+func (s *VPNService) UpdateVpnCustomerGateway(p *UpdateVpnCustomerGatewayParams, wait bool) (*UpdateVpnCustomerGatewayResponse, error) {
 	resp, err := s.cs.newRequest("updateVpnCustomerGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1628,8 +1843,8 @@ func (s *VPNService) UpdateVpnCustomerGateway(p *UpdateVpnCustomerGatewayParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1648,6 +1863,30 @@ func (s *VPNService) UpdateVpnCustomerGateway(p *UpdateVpnCustomerGatewayParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForUpdateVpnCustomerGateway(jobid string) (*UpdateVpnCustomerGatewayResponse, error) {
+	var r UpdateVpnCustomerGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1728,7 +1967,7 @@ func (s *VPNService) NewResetVpnConnectionParams(id string) *ResetVpnConnectionP
 }
 
 // Reset site to site vpn connection
-func (s *VPNService) ResetVpnConnection(p *ResetVpnConnectionParams) (*ResetVpnConnectionResponse, error) {
+func (s *VPNService) ResetVpnConnection(p *ResetVpnConnectionParams, wait bool) (*ResetVpnConnectionResponse, error) {
 	resp, err := s.cs.newRequest("resetVpnConnection", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1739,8 +1978,8 @@ func (s *VPNService) ResetVpnConnection(p *ResetVpnConnectionParams) (*ResetVpnC
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1759,6 +1998,30 @@ func (s *VPNService) ResetVpnConnection(p *ResetVpnConnectionParams) (*ResetVpnC
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPNService) WaitForResetVpnConnection(jobid string) (*ResetVpnConnectionResponse, error) {
+	var r ResetVpnConnectionResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

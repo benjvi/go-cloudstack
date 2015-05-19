@@ -363,7 +363,7 @@ func (s *VirtualMachineService) NewDeployVirtualMachineParams(serviceofferingid 
 }
 
 // Creates and automatically starts a virtual machine based on a service offering, disk offering, and template.
-func (s *VirtualMachineService) DeployVirtualMachine(p *DeployVirtualMachineParams) (*DeployVirtualMachineResponse, error) {
+func (s *VirtualMachineService) DeployVirtualMachine(p *DeployVirtualMachineParams, wait bool) (*DeployVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("deployVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -374,8 +374,8 @@ func (s *VirtualMachineService) DeployVirtualMachine(p *DeployVirtualMachinePara
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -394,6 +394,30 @@ func (s *VirtualMachineService) DeployVirtualMachine(p *DeployVirtualMachinePara
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForDeployVirtualMachine(jobid string) (*DeployVirtualMachineResponse, error) {
+	var r DeployVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -581,7 +605,7 @@ func (s *VirtualMachineService) NewDestroyVirtualMachineParams(id string) *Destr
 }
 
 // Destroys a virtual machine. Once destroyed, only the administrator can recover it.
-func (s *VirtualMachineService) DestroyVirtualMachine(p *DestroyVirtualMachineParams) (*DestroyVirtualMachineResponse, error) {
+func (s *VirtualMachineService) DestroyVirtualMachine(p *DestroyVirtualMachineParams, wait bool) (*DestroyVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("destroyVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -592,8 +616,8 @@ func (s *VirtualMachineService) DestroyVirtualMachine(p *DestroyVirtualMachinePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -612,6 +636,30 @@ func (s *VirtualMachineService) DestroyVirtualMachine(p *DestroyVirtualMachinePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForDestroyVirtualMachine(jobid string) (*DestroyVirtualMachineResponse, error) {
+	var r DestroyVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -787,7 +835,7 @@ func (s *VirtualMachineService) NewRebootVirtualMachineParams(id string) *Reboot
 }
 
 // Reboots a virtual machine.
-func (s *VirtualMachineService) RebootVirtualMachine(p *RebootVirtualMachineParams) (*RebootVirtualMachineResponse, error) {
+func (s *VirtualMachineService) RebootVirtualMachine(p *RebootVirtualMachineParams, wait bool) (*RebootVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("rebootVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -798,8 +846,8 @@ func (s *VirtualMachineService) RebootVirtualMachine(p *RebootVirtualMachinePara
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -818,6 +866,30 @@ func (s *VirtualMachineService) RebootVirtualMachine(p *RebootVirtualMachinePara
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForRebootVirtualMachine(jobid string) (*RebootVirtualMachineResponse, error) {
+	var r RebootVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1004,7 +1076,7 @@ func (s *VirtualMachineService) NewStartVirtualMachineParams(id string) *StartVi
 }
 
 // Starts a virtual machine.
-func (s *VirtualMachineService) StartVirtualMachine(p *StartVirtualMachineParams) (*StartVirtualMachineResponse, error) {
+func (s *VirtualMachineService) StartVirtualMachine(p *StartVirtualMachineParams, wait bool) (*StartVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("startVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1015,8 +1087,8 @@ func (s *VirtualMachineService) StartVirtualMachine(p *StartVirtualMachineParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1035,6 +1107,30 @@ func (s *VirtualMachineService) StartVirtualMachine(p *StartVirtualMachineParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForStartVirtualMachine(jobid string) (*StartVirtualMachineResponse, error) {
+	var r StartVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1222,7 +1318,7 @@ func (s *VirtualMachineService) NewStopVirtualMachineParams(id string) *StopVirt
 }
 
 // Stops a virtual machine.
-func (s *VirtualMachineService) StopVirtualMachine(p *StopVirtualMachineParams) (*StopVirtualMachineResponse, error) {
+func (s *VirtualMachineService) StopVirtualMachine(p *StopVirtualMachineParams, wait bool) (*StopVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("stopVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1233,8 +1329,8 @@ func (s *VirtualMachineService) StopVirtualMachine(p *StopVirtualMachineParams) 
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1253,6 +1349,30 @@ func (s *VirtualMachineService) StopVirtualMachine(p *StopVirtualMachineParams) 
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForStopVirtualMachine(jobid string) (*StopVirtualMachineResponse, error) {
+	var r StopVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1428,7 +1548,7 @@ func (s *VirtualMachineService) NewResetPasswordForVirtualMachineParams(id strin
 }
 
 // Resets the password for virtual machine. The virtual machine must be in a "Stopped" state and the template must already support this feature for this command to take effect. [async]
-func (s *VirtualMachineService) ResetPasswordForVirtualMachine(p *ResetPasswordForVirtualMachineParams) (*ResetPasswordForVirtualMachineResponse, error) {
+func (s *VirtualMachineService) ResetPasswordForVirtualMachine(p *ResetPasswordForVirtualMachineParams, wait bool) (*ResetPasswordForVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("resetPasswordForVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1439,8 +1559,8 @@ func (s *VirtualMachineService) ResetPasswordForVirtualMachine(p *ResetPasswordF
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1459,6 +1579,30 @@ func (s *VirtualMachineService) ResetPasswordForVirtualMachine(p *ResetPasswordF
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForResetPasswordForVirtualMachine(jobid string) (*ResetPasswordForVirtualMachineResponse, error) {
+	var r ResetPasswordForVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2491,7 +2635,7 @@ func (s *VirtualMachineService) NewRestoreVirtualMachineParams(virtualmachineid 
 }
 
 // Restore a VM to original template/ISO or new template/ISO
-func (s *VirtualMachineService) RestoreVirtualMachine(p *RestoreVirtualMachineParams) (*RestoreVirtualMachineResponse, error) {
+func (s *VirtualMachineService) RestoreVirtualMachine(p *RestoreVirtualMachineParams, wait bool) (*RestoreVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("restoreVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2502,8 +2646,8 @@ func (s *VirtualMachineService) RestoreVirtualMachine(p *RestoreVirtualMachinePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2522,6 +2666,30 @@ func (s *VirtualMachineService) RestoreVirtualMachine(p *RestoreVirtualMachinePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForRestoreVirtualMachine(jobid string) (*RestoreVirtualMachineResponse, error) {
+	var r RestoreVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2936,7 +3104,7 @@ func (s *VirtualMachineService) NewScaleVirtualMachineParams(id string, serviceo
 }
 
 // Scales the virtual machine to a new service offering.
-func (s *VirtualMachineService) ScaleVirtualMachine(p *ScaleVirtualMachineParams) (*ScaleVirtualMachineResponse, error) {
+func (s *VirtualMachineService) ScaleVirtualMachine(p *ScaleVirtualMachineParams, wait bool) (*ScaleVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("scaleVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2947,8 +3115,8 @@ func (s *VirtualMachineService) ScaleVirtualMachine(p *ScaleVirtualMachineParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2962,6 +3130,25 @@ func (s *VirtualMachineService) ScaleVirtualMachine(p *ScaleVirtualMachineParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForScaleVirtualMachine(jobid string) (*ScaleVirtualMachineResponse, error) {
+	var r ScaleVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3258,7 +3445,7 @@ func (s *VirtualMachineService) NewMigrateVirtualMachineParams(virtualmachineid 
 }
 
 // Attempts Migration of a VM to a different host or Root volume of the vm to a different storage pool
-func (s *VirtualMachineService) MigrateVirtualMachine(p *MigrateVirtualMachineParams) (*MigrateVirtualMachineResponse, error) {
+func (s *VirtualMachineService) MigrateVirtualMachine(p *MigrateVirtualMachineParams, wait bool) (*MigrateVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("migrateVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3269,8 +3456,8 @@ func (s *VirtualMachineService) MigrateVirtualMachine(p *MigrateVirtualMachinePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3289,6 +3476,30 @@ func (s *VirtualMachineService) MigrateVirtualMachine(p *MigrateVirtualMachinePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForMigrateVirtualMachine(jobid string) (*MigrateVirtualMachineResponse, error) {
+	var r MigrateVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3492,7 +3703,7 @@ func (s *VirtualMachineService) NewMigrateVirtualMachineWithVolumeParams(hostid 
 }
 
 // Attempts Migration of a VM with its volumes to a different host
-func (s *VirtualMachineService) MigrateVirtualMachineWithVolume(p *MigrateVirtualMachineWithVolumeParams) (*MigrateVirtualMachineWithVolumeResponse, error) {
+func (s *VirtualMachineService) MigrateVirtualMachineWithVolume(p *MigrateVirtualMachineWithVolumeParams, wait bool) (*MigrateVirtualMachineWithVolumeResponse, error) {
 	resp, err := s.cs.newRequest("migrateVirtualMachineWithVolume", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3503,8 +3714,8 @@ func (s *VirtualMachineService) MigrateVirtualMachineWithVolume(p *MigrateVirtua
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3523,6 +3734,30 @@ func (s *VirtualMachineService) MigrateVirtualMachineWithVolume(p *MigrateVirtua
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForMigrateVirtualMachineWithVolume(jobid string) (*MigrateVirtualMachineWithVolumeResponse, error) {
+	var r MigrateVirtualMachineWithVolumeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3881,7 +4116,7 @@ func (s *VirtualMachineService) NewExpungeVirtualMachineParams(id string) *Expun
 }
 
 // Expunge a virtual machine. Once expunged, it cannot be recoverd.
-func (s *VirtualMachineService) ExpungeVirtualMachine(p *ExpungeVirtualMachineParams) (*ExpungeVirtualMachineResponse, error) {
+func (s *VirtualMachineService) ExpungeVirtualMachine(p *ExpungeVirtualMachineParams, wait bool) (*ExpungeVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("expungeVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3892,8 +4127,8 @@ func (s *VirtualMachineService) ExpungeVirtualMachine(p *ExpungeVirtualMachinePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3907,6 +4142,25 @@ func (s *VirtualMachineService) ExpungeVirtualMachine(p *ExpungeVirtualMachinePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForExpungeVirtualMachine(jobid string) (*ExpungeVirtualMachineResponse, error) {
+	var r ExpungeVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3938,7 +4192,7 @@ func (s *VirtualMachineService) NewCleanVMReservationsParams() *CleanVMReservati
 }
 
 // Cleanups VM reservations in the database.
-func (s *VirtualMachineService) CleanVMReservations(p *CleanVMReservationsParams) (*CleanVMReservationsResponse, error) {
+func (s *VirtualMachineService) CleanVMReservations(p *CleanVMReservationsParams, wait bool) (*CleanVMReservationsResponse, error) {
 	resp, err := s.cs.newRequest("cleanVMReservations", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3949,8 +4203,8 @@ func (s *VirtualMachineService) CleanVMReservations(p *CleanVMReservationsParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3964,6 +4218,25 @@ func (s *VirtualMachineService) CleanVMReservations(p *CleanVMReservationsParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForCleanVMReservations(jobid string) (*CleanVMReservationsResponse, error) {
+	var r CleanVMReservationsResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -4030,7 +4303,7 @@ func (s *VirtualMachineService) NewAddNicToVirtualMachineParams(networkid string
 }
 
 // Adds VM to specified network by creating a NIC
-func (s *VirtualMachineService) AddNicToVirtualMachine(p *AddNicToVirtualMachineParams) (*AddNicToVirtualMachineResponse, error) {
+func (s *VirtualMachineService) AddNicToVirtualMachine(p *AddNicToVirtualMachineParams, wait bool) (*AddNicToVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("addNicToVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -4041,8 +4314,8 @@ func (s *VirtualMachineService) AddNicToVirtualMachine(p *AddNicToVirtualMachine
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -4061,6 +4334,30 @@ func (s *VirtualMachineService) AddNicToVirtualMachine(p *AddNicToVirtualMachine
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForAddNicToVirtualMachine(jobid string) (*AddNicToVirtualMachineResponse, error) {
+	var r AddNicToVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -4248,7 +4545,7 @@ func (s *VirtualMachineService) NewRemoveNicFromVirtualMachineParams(nicid strin
 }
 
 // Removes VM from specified network by deleting a NIC
-func (s *VirtualMachineService) RemoveNicFromVirtualMachine(p *RemoveNicFromVirtualMachineParams) (*RemoveNicFromVirtualMachineResponse, error) {
+func (s *VirtualMachineService) RemoveNicFromVirtualMachine(p *RemoveNicFromVirtualMachineParams, wait bool) (*RemoveNicFromVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("removeNicFromVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -4259,8 +4556,8 @@ func (s *VirtualMachineService) RemoveNicFromVirtualMachine(p *RemoveNicFromVirt
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -4279,6 +4576,30 @@ func (s *VirtualMachineService) RemoveNicFromVirtualMachine(p *RemoveNicFromVirt
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForRemoveNicFromVirtualMachine(jobid string) (*RemoveNicFromVirtualMachineResponse, error) {
+	var r RemoveNicFromVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -4466,7 +4787,7 @@ func (s *VirtualMachineService) NewUpdateDefaultNicForVirtualMachineParams(nicid
 }
 
 // Changes the default NIC on a VM
-func (s *VirtualMachineService) UpdateDefaultNicForVirtualMachine(p *UpdateDefaultNicForVirtualMachineParams) (*UpdateDefaultNicForVirtualMachineResponse, error) {
+func (s *VirtualMachineService) UpdateDefaultNicForVirtualMachine(p *UpdateDefaultNicForVirtualMachineParams, wait bool) (*UpdateDefaultNicForVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("updateDefaultNicForVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -4477,8 +4798,8 @@ func (s *VirtualMachineService) UpdateDefaultNicForVirtualMachine(p *UpdateDefau
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -4497,6 +4818,30 @@ func (s *VirtualMachineService) UpdateDefaultNicForVirtualMachine(p *UpdateDefau
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VirtualMachineService) WaitForUpdateDefaultNicForVirtualMachine(jobid string) (*UpdateDefaultNicForVirtualMachineResponse, error) {
+	var r UpdateDefaultNicForVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

@@ -55,7 +55,7 @@ func (s *ExternalDeviceService) NewDeleteCiscoNexusVSMParams(id string) *DeleteC
 }
 
 //  delete a Cisco Nexus VSM device
-func (s *ExternalDeviceService) DeleteCiscoNexusVSM(p *DeleteCiscoNexusVSMParams) (*DeleteCiscoNexusVSMResponse, error) {
+func (s *ExternalDeviceService) DeleteCiscoNexusVSM(p *DeleteCiscoNexusVSMParams, wait bool) (*DeleteCiscoNexusVSMResponse, error) {
 	resp, err := s.cs.newRequest("deleteCiscoNexusVSM", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -66,8 +66,8 @@ func (s *ExternalDeviceService) DeleteCiscoNexusVSM(p *DeleteCiscoNexusVSMParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -81,6 +81,25 @@ func (s *ExternalDeviceService) DeleteCiscoNexusVSM(p *DeleteCiscoNexusVSMParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ExternalDeviceService) WaitForDeleteCiscoNexusVSM(jobid string) (*DeleteCiscoNexusVSMResponse, error) {
+	var r DeleteCiscoNexusVSMResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -124,7 +143,7 @@ func (s *ExternalDeviceService) NewEnableCiscoNexusVSMParams(id string) *EnableC
 }
 
 // Enable a Cisco Nexus VSM device
-func (s *ExternalDeviceService) EnableCiscoNexusVSM(p *EnableCiscoNexusVSMParams) (*EnableCiscoNexusVSMResponse, error) {
+func (s *ExternalDeviceService) EnableCiscoNexusVSM(p *EnableCiscoNexusVSMParams, wait bool) (*EnableCiscoNexusVSMResponse, error) {
 	resp, err := s.cs.newRequest("enableCiscoNexusVSM", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -135,8 +154,8 @@ func (s *ExternalDeviceService) EnableCiscoNexusVSM(p *EnableCiscoNexusVSMParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -155,6 +174,30 @@ func (s *ExternalDeviceService) EnableCiscoNexusVSM(p *EnableCiscoNexusVSMParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ExternalDeviceService) WaitForEnableCiscoNexusVSM(jobid string) (*EnableCiscoNexusVSMResponse, error) {
+	var r EnableCiscoNexusVSMResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -207,7 +250,7 @@ func (s *ExternalDeviceService) NewDisableCiscoNexusVSMParams(id string) *Disabl
 }
 
 // disable a Cisco Nexus VSM device
-func (s *ExternalDeviceService) DisableCiscoNexusVSM(p *DisableCiscoNexusVSMParams) (*DisableCiscoNexusVSMResponse, error) {
+func (s *ExternalDeviceService) DisableCiscoNexusVSM(p *DisableCiscoNexusVSMParams, wait bool) (*DisableCiscoNexusVSMResponse, error) {
 	resp, err := s.cs.newRequest("disableCiscoNexusVSM", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -218,8 +261,8 @@ func (s *ExternalDeviceService) DisableCiscoNexusVSM(p *DisableCiscoNexusVSMPara
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -238,6 +281,30 @@ func (s *ExternalDeviceService) DisableCiscoNexusVSM(p *DisableCiscoNexusVSMPara
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ExternalDeviceService) WaitForDisableCiscoNexusVSM(jobid string) (*DisableCiscoNexusVSMResponse, error) {
+	var r DisableCiscoNexusVSMResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

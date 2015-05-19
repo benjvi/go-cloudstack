@@ -134,7 +134,7 @@ func (s *UsageService) NewAddTrafficTypeParams(physicalnetworkid string, traffic
 }
 
 // Adds traffic type to a physical network
-func (s *UsageService) AddTrafficType(p *AddTrafficTypeParams) (*AddTrafficTypeResponse, error) {
+func (s *UsageService) AddTrafficType(p *AddTrafficTypeParams, wait bool) (*AddTrafficTypeResponse, error) {
 	resp, err := s.cs.newRequest("addTrafficType", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -145,8 +145,8 @@ func (s *UsageService) AddTrafficType(p *AddTrafficTypeParams) (*AddTrafficTypeR
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -165,6 +165,30 @@ func (s *UsageService) AddTrafficType(p *AddTrafficTypeParams) (*AddTrafficTypeR
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *UsageService) WaitForAddTrafficType(jobid string) (*AddTrafficTypeResponse, error) {
+	var r AddTrafficTypeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -213,7 +237,7 @@ func (s *UsageService) NewDeleteTrafficTypeParams(id string) *DeleteTrafficTypeP
 }
 
 // Deletes traffic type of a physical network
-func (s *UsageService) DeleteTrafficType(p *DeleteTrafficTypeParams) (*DeleteTrafficTypeResponse, error) {
+func (s *UsageService) DeleteTrafficType(p *DeleteTrafficTypeParams, wait bool) (*DeleteTrafficTypeResponse, error) {
 	resp, err := s.cs.newRequest("deleteTrafficType", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -224,8 +248,8 @@ func (s *UsageService) DeleteTrafficType(p *DeleteTrafficTypeParams) (*DeleteTra
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -239,6 +263,25 @@ func (s *UsageService) DeleteTrafficType(p *DeleteTrafficTypeParams) (*DeleteTra
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *UsageService) WaitForDeleteTrafficType(jobid string) (*DeleteTrafficTypeResponse, error) {
+	var r DeleteTrafficTypeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -453,7 +496,7 @@ func (s *UsageService) NewUpdateTrafficTypeParams(id string) *UpdateTrafficTypeP
 }
 
 // Updates traffic type of a physical network
-func (s *UsageService) UpdateTrafficType(p *UpdateTrafficTypeParams) (*UpdateTrafficTypeResponse, error) {
+func (s *UsageService) UpdateTrafficType(p *UpdateTrafficTypeParams, wait bool) (*UpdateTrafficTypeResponse, error) {
 	resp, err := s.cs.newRequest("updateTrafficType", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -464,8 +507,8 @@ func (s *UsageService) UpdateTrafficType(p *UpdateTrafficTypeParams) (*UpdateTra
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -484,6 +527,30 @@ func (s *UsageService) UpdateTrafficType(p *UpdateTrafficTypeParams) (*UpdateTra
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *UsageService) WaitForUpdateTrafficType(jobid string) (*UpdateTrafficTypeResponse, error) {
+	var r UpdateTrafficTypeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

@@ -81,7 +81,7 @@ func (s *AutoScaleService) NewCreateCounterParams(name string, source string, va
 }
 
 // Adds metric counter
-func (s *AutoScaleService) CreateCounter(p *CreateCounterParams) (*CreateCounterResponse, error) {
+func (s *AutoScaleService) CreateCounter(p *CreateCounterParams, wait bool) (*CreateCounterResponse, error) {
 	resp, err := s.cs.newRequest("createCounter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -92,8 +92,8 @@ func (s *AutoScaleService) CreateCounter(p *CreateCounterParams) (*CreateCounter
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -112,6 +112,30 @@ func (s *AutoScaleService) CreateCounter(p *CreateCounterParams) (*CreateCounter
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForCreateCounter(jobid string) (*CreateCounterResponse, error) {
+	var r CreateCounterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -205,7 +229,7 @@ func (s *AutoScaleService) NewCreateConditionParams(counterid string, relational
 }
 
 // Creates a condition
-func (s *AutoScaleService) CreateCondition(p *CreateConditionParams) (*CreateConditionResponse, error) {
+func (s *AutoScaleService) CreateCondition(p *CreateConditionParams, wait bool) (*CreateConditionResponse, error) {
 	resp, err := s.cs.newRequest("createCondition", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -216,8 +240,8 @@ func (s *AutoScaleService) CreateCondition(p *CreateConditionParams) (*CreateCon
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -236,6 +260,30 @@ func (s *AutoScaleService) CreateCondition(p *CreateConditionParams) (*CreateCon
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForCreateCondition(jobid string) (*CreateConditionResponse, error) {
+	var r CreateConditionResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -325,7 +373,7 @@ func (s *AutoScaleService) NewCreateAutoScalePolicyParams(action string, conditi
 }
 
 // Creates an autoscale policy for a provision or deprovision action, the action is taken when the all the conditions evaluates to true for the specified duration. The policy is in effect once it is attached to a autscale vm group.
-func (s *AutoScaleService) CreateAutoScalePolicy(p *CreateAutoScalePolicyParams) (*CreateAutoScalePolicyResponse, error) {
+func (s *AutoScaleService) CreateAutoScalePolicy(p *CreateAutoScalePolicyParams, wait bool) (*CreateAutoScalePolicyResponse, error) {
 	resp, err := s.cs.newRequest("createAutoScalePolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -336,8 +384,8 @@ func (s *AutoScaleService) CreateAutoScalePolicy(p *CreateAutoScalePolicyParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -356,6 +404,30 @@ func (s *AutoScaleService) CreateAutoScalePolicy(p *CreateAutoScalePolicyParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForCreateAutoScalePolicy(jobid string) (*CreateAutoScalePolicyResponse, error) {
+	var r CreateAutoScalePolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -481,7 +553,7 @@ func (s *AutoScaleService) NewCreateAutoScaleVmProfileParams(serviceofferingid s
 }
 
 // Creates a profile that contains information about the virtual machine which will be provisioned automatically by autoscale feature.
-func (s *AutoScaleService) CreateAutoScaleVmProfile(p *CreateAutoScaleVmProfileParams) (*CreateAutoScaleVmProfileResponse, error) {
+func (s *AutoScaleService) CreateAutoScaleVmProfile(p *CreateAutoScaleVmProfileParams, wait bool) (*CreateAutoScaleVmProfileResponse, error) {
 	resp, err := s.cs.newRequest("createAutoScaleVmProfile", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -492,8 +564,8 @@ func (s *AutoScaleService) CreateAutoScaleVmProfile(p *CreateAutoScaleVmProfileP
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -512,6 +584,30 @@ func (s *AutoScaleService) CreateAutoScaleVmProfile(p *CreateAutoScaleVmProfileP
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForCreateAutoScaleVmProfile(jobid string) (*CreateAutoScaleVmProfileResponse, error) {
+	var r CreateAutoScaleVmProfileResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -641,7 +737,7 @@ func (s *AutoScaleService) NewCreateAutoScaleVmGroupParams(lbruleid string, maxm
 }
 
 // Creates and automatically starts a virtual machine based on a service offering, disk offering, and template.
-func (s *AutoScaleService) CreateAutoScaleVmGroup(p *CreateAutoScaleVmGroupParams) (*CreateAutoScaleVmGroupResponse, error) {
+func (s *AutoScaleService) CreateAutoScaleVmGroup(p *CreateAutoScaleVmGroupParams, wait bool) (*CreateAutoScaleVmGroupResponse, error) {
 	resp, err := s.cs.newRequest("createAutoScaleVmGroup", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -652,8 +748,8 @@ func (s *AutoScaleService) CreateAutoScaleVmGroup(p *CreateAutoScaleVmGroupParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -672,6 +768,30 @@ func (s *AutoScaleService) CreateAutoScaleVmGroup(p *CreateAutoScaleVmGroupParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForCreateAutoScaleVmGroup(jobid string) (*CreateAutoScaleVmGroupResponse, error) {
+	var r CreateAutoScaleVmGroupResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -727,7 +847,7 @@ func (s *AutoScaleService) NewDeleteCounterParams(id string) *DeleteCounterParam
 }
 
 // Deletes a counter
-func (s *AutoScaleService) DeleteCounter(p *DeleteCounterParams) (*DeleteCounterResponse, error) {
+func (s *AutoScaleService) DeleteCounter(p *DeleteCounterParams, wait bool) (*DeleteCounterResponse, error) {
 	resp, err := s.cs.newRequest("deleteCounter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -738,8 +858,8 @@ func (s *AutoScaleService) DeleteCounter(p *DeleteCounterParams) (*DeleteCounter
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -753,6 +873,25 @@ func (s *AutoScaleService) DeleteCounter(p *DeleteCounterParams) (*DeleteCounter
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDeleteCounter(jobid string) (*DeleteCounterResponse, error) {
+	var r DeleteCounterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -796,7 +935,7 @@ func (s *AutoScaleService) NewDeleteConditionParams(id string) *DeleteConditionP
 }
 
 // Removes a condition
-func (s *AutoScaleService) DeleteCondition(p *DeleteConditionParams) (*DeleteConditionResponse, error) {
+func (s *AutoScaleService) DeleteCondition(p *DeleteConditionParams, wait bool) (*DeleteConditionResponse, error) {
 	resp, err := s.cs.newRequest("deleteCondition", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -807,8 +946,8 @@ func (s *AutoScaleService) DeleteCondition(p *DeleteConditionParams) (*DeleteCon
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -822,6 +961,25 @@ func (s *AutoScaleService) DeleteCondition(p *DeleteConditionParams) (*DeleteCon
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDeleteCondition(jobid string) (*DeleteConditionResponse, error) {
+	var r DeleteConditionResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -865,7 +1023,7 @@ func (s *AutoScaleService) NewDeleteAutoScalePolicyParams(id string) *DeleteAuto
 }
 
 // Deletes a autoscale policy.
-func (s *AutoScaleService) DeleteAutoScalePolicy(p *DeleteAutoScalePolicyParams) (*DeleteAutoScalePolicyResponse, error) {
+func (s *AutoScaleService) DeleteAutoScalePolicy(p *DeleteAutoScalePolicyParams, wait bool) (*DeleteAutoScalePolicyResponse, error) {
 	resp, err := s.cs.newRequest("deleteAutoScalePolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -876,8 +1034,8 @@ func (s *AutoScaleService) DeleteAutoScalePolicy(p *DeleteAutoScalePolicyParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -891,6 +1049,25 @@ func (s *AutoScaleService) DeleteAutoScalePolicy(p *DeleteAutoScalePolicyParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDeleteAutoScalePolicy(jobid string) (*DeleteAutoScalePolicyResponse, error) {
+	var r DeleteAutoScalePolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -934,7 +1111,7 @@ func (s *AutoScaleService) NewDeleteAutoScaleVmProfileParams(id string) *DeleteA
 }
 
 // Deletes a autoscale vm profile.
-func (s *AutoScaleService) DeleteAutoScaleVmProfile(p *DeleteAutoScaleVmProfileParams) (*DeleteAutoScaleVmProfileResponse, error) {
+func (s *AutoScaleService) DeleteAutoScaleVmProfile(p *DeleteAutoScaleVmProfileParams, wait bool) (*DeleteAutoScaleVmProfileResponse, error) {
 	resp, err := s.cs.newRequest("deleteAutoScaleVmProfile", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -945,8 +1122,8 @@ func (s *AutoScaleService) DeleteAutoScaleVmProfile(p *DeleteAutoScaleVmProfileP
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -960,6 +1137,25 @@ func (s *AutoScaleService) DeleteAutoScaleVmProfile(p *DeleteAutoScaleVmProfileP
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDeleteAutoScaleVmProfile(jobid string) (*DeleteAutoScaleVmProfileResponse, error) {
+	var r DeleteAutoScaleVmProfileResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1003,7 +1199,7 @@ func (s *AutoScaleService) NewDeleteAutoScaleVmGroupParams(id string) *DeleteAut
 }
 
 // Deletes a autoscale vm group.
-func (s *AutoScaleService) DeleteAutoScaleVmGroup(p *DeleteAutoScaleVmGroupParams) (*DeleteAutoScaleVmGroupResponse, error) {
+func (s *AutoScaleService) DeleteAutoScaleVmGroup(p *DeleteAutoScaleVmGroupParams, wait bool) (*DeleteAutoScaleVmGroupResponse, error) {
 	resp, err := s.cs.newRequest("deleteAutoScaleVmGroup", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1014,8 +1210,8 @@ func (s *AutoScaleService) DeleteAutoScaleVmGroup(p *DeleteAutoScaleVmGroupParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1029,6 +1225,25 @@ func (s *AutoScaleService) DeleteAutoScaleVmGroup(p *DeleteAutoScaleVmGroupParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDeleteAutoScaleVmGroup(jobid string) (*DeleteAutoScaleVmGroupResponse, error) {
+	var r DeleteAutoScaleVmGroupResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2091,7 +2306,7 @@ func (s *AutoScaleService) NewEnableAutoScaleVmGroupParams(id string) *EnableAut
 }
 
 // Enables an AutoScale Vm Group
-func (s *AutoScaleService) EnableAutoScaleVmGroup(p *EnableAutoScaleVmGroupParams) (*EnableAutoScaleVmGroupResponse, error) {
+func (s *AutoScaleService) EnableAutoScaleVmGroup(p *EnableAutoScaleVmGroupParams, wait bool) (*EnableAutoScaleVmGroupResponse, error) {
 	resp, err := s.cs.newRequest("enableAutoScaleVmGroup", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2102,8 +2317,8 @@ func (s *AutoScaleService) EnableAutoScaleVmGroup(p *EnableAutoScaleVmGroupParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2122,6 +2337,30 @@ func (s *AutoScaleService) EnableAutoScaleVmGroup(p *EnableAutoScaleVmGroupParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForEnableAutoScaleVmGroup(jobid string) (*EnableAutoScaleVmGroupResponse, error) {
+	var r EnableAutoScaleVmGroupResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2177,7 +2416,7 @@ func (s *AutoScaleService) NewDisableAutoScaleVmGroupParams(id string) *DisableA
 }
 
 // Disables an AutoScale Vm Group
-func (s *AutoScaleService) DisableAutoScaleVmGroup(p *DisableAutoScaleVmGroupParams) (*DisableAutoScaleVmGroupResponse, error) {
+func (s *AutoScaleService) DisableAutoScaleVmGroup(p *DisableAutoScaleVmGroupParams, wait bool) (*DisableAutoScaleVmGroupResponse, error) {
 	resp, err := s.cs.newRequest("disableAutoScaleVmGroup", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2188,8 +2427,8 @@ func (s *AutoScaleService) DisableAutoScaleVmGroup(p *DisableAutoScaleVmGroupPar
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2208,6 +2447,30 @@ func (s *AutoScaleService) DisableAutoScaleVmGroup(p *DisableAutoScaleVmGroupPar
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForDisableAutoScaleVmGroup(jobid string) (*DisableAutoScaleVmGroupResponse, error) {
+	var r DisableAutoScaleVmGroupResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2299,7 +2562,7 @@ func (s *AutoScaleService) NewUpdateAutoScalePolicyParams(id string) *UpdateAuto
 }
 
 // Updates an existing autoscale policy.
-func (s *AutoScaleService) UpdateAutoScalePolicy(p *UpdateAutoScalePolicyParams) (*UpdateAutoScalePolicyResponse, error) {
+func (s *AutoScaleService) UpdateAutoScalePolicy(p *UpdateAutoScalePolicyParams, wait bool) (*UpdateAutoScalePolicyResponse, error) {
 	resp, err := s.cs.newRequest("updateAutoScalePolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2310,8 +2573,8 @@ func (s *AutoScaleService) UpdateAutoScalePolicy(p *UpdateAutoScalePolicyParams)
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2330,6 +2593,30 @@ func (s *AutoScaleService) UpdateAutoScalePolicy(p *UpdateAutoScalePolicyParams)
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForUpdateAutoScalePolicy(jobid string) (*UpdateAutoScalePolicyResponse, error) {
+	var r UpdateAutoScalePolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2431,7 +2718,7 @@ func (s *AutoScaleService) NewUpdateAutoScaleVmProfileParams(id string) *UpdateA
 }
 
 // Updates an existing autoscale vm profile.
-func (s *AutoScaleService) UpdateAutoScaleVmProfile(p *UpdateAutoScaleVmProfileParams) (*UpdateAutoScaleVmProfileResponse, error) {
+func (s *AutoScaleService) UpdateAutoScaleVmProfile(p *UpdateAutoScaleVmProfileParams, wait bool) (*UpdateAutoScaleVmProfileResponse, error) {
 	resp, err := s.cs.newRequest("updateAutoScaleVmProfile", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2442,8 +2729,8 @@ func (s *AutoScaleService) UpdateAutoScaleVmProfile(p *UpdateAutoScaleVmProfileP
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2462,6 +2749,30 @@ func (s *AutoScaleService) UpdateAutoScaleVmProfile(p *UpdateAutoScaleVmProfileP
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForUpdateAutoScaleVmProfile(jobid string) (*UpdateAutoScaleVmProfileResponse, error) {
+	var r UpdateAutoScaleVmProfileResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2575,7 +2886,7 @@ func (s *AutoScaleService) NewUpdateAutoScaleVmGroupParams(id string) *UpdateAut
 }
 
 // Updates an existing autoscale vm group.
-func (s *AutoScaleService) UpdateAutoScaleVmGroup(p *UpdateAutoScaleVmGroupParams) (*UpdateAutoScaleVmGroupResponse, error) {
+func (s *AutoScaleService) UpdateAutoScaleVmGroup(p *UpdateAutoScaleVmGroupParams, wait bool) (*UpdateAutoScaleVmGroupResponse, error) {
 	resp, err := s.cs.newRequest("updateAutoScaleVmGroup", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2586,8 +2897,8 @@ func (s *AutoScaleService) UpdateAutoScaleVmGroup(p *UpdateAutoScaleVmGroupParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2606,6 +2917,30 @@ func (s *AutoScaleService) UpdateAutoScaleVmGroup(p *UpdateAutoScaleVmGroupParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AutoScaleService) WaitForUpdateAutoScaleVmGroup(jobid string) (*UpdateAutoScaleVmGroupResponse, error) {
+	var r UpdateAutoScaleVmGroupResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

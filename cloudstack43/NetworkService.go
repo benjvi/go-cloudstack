@@ -610,7 +610,7 @@ func (s *NetworkService) NewDeleteNetworkParams(id string) *DeleteNetworkParams 
 }
 
 // Deletes a network
-func (s *NetworkService) DeleteNetwork(p *DeleteNetworkParams) (*DeleteNetworkResponse, error) {
+func (s *NetworkService) DeleteNetwork(p *DeleteNetworkParams, wait bool) (*DeleteNetworkResponse, error) {
 	resp, err := s.cs.newRequest("deleteNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -621,8 +621,8 @@ func (s *NetworkService) DeleteNetwork(p *DeleteNetworkParams) (*DeleteNetworkRe
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -636,6 +636,25 @@ func (s *NetworkService) DeleteNetwork(p *DeleteNetworkParams) (*DeleteNetworkRe
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForDeleteNetwork(jobid string) (*DeleteNetworkResponse, error) {
+	var r DeleteNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1134,7 +1153,7 @@ func (s *NetworkService) NewRestartNetworkParams(id string) *RestartNetworkParam
 }
 
 // Restarts the network; includes 1) restarting network elements - virtual routers, dhcp servers 2) reapplying all public ips 3) reapplying loadBalancing/portForwarding rules
-func (s *NetworkService) RestartNetwork(p *RestartNetworkParams) (*RestartNetworkResponse, error) {
+func (s *NetworkService) RestartNetwork(p *RestartNetworkParams, wait bool) (*RestartNetworkResponse, error) {
 	resp, err := s.cs.newRequest("restartNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1145,8 +1164,8 @@ func (s *NetworkService) RestartNetwork(p *RestartNetworkParams) (*RestartNetwor
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1165,6 +1184,30 @@ func (s *NetworkService) RestartNetwork(p *RestartNetworkParams) (*RestartNetwor
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForRestartNetwork(jobid string) (*RestartNetworkResponse, error) {
+	var r RestartNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1325,7 +1368,7 @@ func (s *NetworkService) NewUpdateNetworkParams(id string) *UpdateNetworkParams 
 }
 
 // Updates a network
-func (s *NetworkService) UpdateNetwork(p *UpdateNetworkParams) (*UpdateNetworkResponse, error) {
+func (s *NetworkService) UpdateNetwork(p *UpdateNetworkParams, wait bool) (*UpdateNetworkResponse, error) {
 	resp, err := s.cs.newRequest("updateNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1336,8 +1379,8 @@ func (s *NetworkService) UpdateNetwork(p *UpdateNetworkParams) (*UpdateNetworkRe
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1356,6 +1399,30 @@ func (s *NetworkService) UpdateNetwork(p *UpdateNetworkParams) (*UpdateNetworkRe
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForUpdateNetwork(jobid string) (*UpdateNetworkResponse, error) {
+	var r UpdateNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1550,7 +1617,7 @@ func (s *NetworkService) NewCreatePhysicalNetworkParams(name string, zoneid stri
 }
 
 // Creates a physical network
-func (s *NetworkService) CreatePhysicalNetwork(p *CreatePhysicalNetworkParams) (*CreatePhysicalNetworkResponse, error) {
+func (s *NetworkService) CreatePhysicalNetwork(p *CreatePhysicalNetworkParams, wait bool) (*CreatePhysicalNetworkResponse, error) {
 	resp, err := s.cs.newRequest("createPhysicalNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1561,8 +1628,8 @@ func (s *NetworkService) CreatePhysicalNetwork(p *CreatePhysicalNetworkParams) (
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1581,6 +1648,30 @@ func (s *NetworkService) CreatePhysicalNetwork(p *CreatePhysicalNetworkParams) (
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForCreatePhysicalNetwork(jobid string) (*CreatePhysicalNetworkResponse, error) {
+	var r CreatePhysicalNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1632,7 +1723,7 @@ func (s *NetworkService) NewDeletePhysicalNetworkParams(id string) *DeletePhysic
 }
 
 // Deletes a Physical Network.
-func (s *NetworkService) DeletePhysicalNetwork(p *DeletePhysicalNetworkParams) (*DeletePhysicalNetworkResponse, error) {
+func (s *NetworkService) DeletePhysicalNetwork(p *DeletePhysicalNetworkParams, wait bool) (*DeletePhysicalNetworkResponse, error) {
 	resp, err := s.cs.newRequest("deletePhysicalNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1643,8 +1734,8 @@ func (s *NetworkService) DeletePhysicalNetwork(p *DeletePhysicalNetworkParams) (
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1658,6 +1749,25 @@ func (s *NetworkService) DeletePhysicalNetwork(p *DeletePhysicalNetworkParams) (
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForDeletePhysicalNetwork(jobid string) (*DeletePhysicalNetworkResponse, error) {
+	var r DeletePhysicalNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1937,7 +2047,7 @@ func (s *NetworkService) NewUpdatePhysicalNetworkParams(id string) *UpdatePhysic
 }
 
 // Updates a physical network
-func (s *NetworkService) UpdatePhysicalNetwork(p *UpdatePhysicalNetworkParams) (*UpdatePhysicalNetworkResponse, error) {
+func (s *NetworkService) UpdatePhysicalNetwork(p *UpdatePhysicalNetworkParams, wait bool) (*UpdatePhysicalNetworkResponse, error) {
 	resp, err := s.cs.newRequest("updatePhysicalNetwork", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1948,8 +2058,8 @@ func (s *NetworkService) UpdatePhysicalNetwork(p *UpdatePhysicalNetworkParams) (
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1968,6 +2078,30 @@ func (s *NetworkService) UpdatePhysicalNetwork(p *UpdatePhysicalNetworkParams) (
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForUpdatePhysicalNetwork(jobid string) (*UpdatePhysicalNetworkResponse, error) {
+	var r UpdatePhysicalNetworkResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2168,7 +2302,7 @@ func (s *NetworkService) NewAddNetworkServiceProviderParams(name string, physica
 }
 
 // Adds a network serviceProvider to a physical network
-func (s *NetworkService) AddNetworkServiceProvider(p *AddNetworkServiceProviderParams) (*AddNetworkServiceProviderResponse, error) {
+func (s *NetworkService) AddNetworkServiceProvider(p *AddNetworkServiceProviderParams, wait bool) (*AddNetworkServiceProviderResponse, error) {
 	resp, err := s.cs.newRequest("addNetworkServiceProvider", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2179,8 +2313,8 @@ func (s *NetworkService) AddNetworkServiceProvider(p *AddNetworkServiceProviderP
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2199,6 +2333,30 @@ func (s *NetworkService) AddNetworkServiceProvider(p *AddNetworkServiceProviderP
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForAddNetworkServiceProvider(jobid string) (*AddNetworkServiceProviderResponse, error) {
+	var r AddNetworkServiceProviderResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2247,7 +2405,7 @@ func (s *NetworkService) NewDeleteNetworkServiceProviderParams(id string) *Delet
 }
 
 // Deletes a Network Service Provider.
-func (s *NetworkService) DeleteNetworkServiceProvider(p *DeleteNetworkServiceProviderParams) (*DeleteNetworkServiceProviderResponse, error) {
+func (s *NetworkService) DeleteNetworkServiceProvider(p *DeleteNetworkServiceProviderParams, wait bool) (*DeleteNetworkServiceProviderResponse, error) {
 	resp, err := s.cs.newRequest("deleteNetworkServiceProvider", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2258,8 +2416,8 @@ func (s *NetworkService) DeleteNetworkServiceProvider(p *DeleteNetworkServicePro
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2273,6 +2431,25 @@ func (s *NetworkService) DeleteNetworkServiceProvider(p *DeleteNetworkServicePro
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForDeleteNetworkServiceProvider(jobid string) (*DeleteNetworkServiceProviderResponse, error) {
+	var r DeleteNetworkServiceProviderResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2486,7 +2663,7 @@ func (s *NetworkService) NewUpdateNetworkServiceProviderParams(id string) *Updat
 }
 
 // Updates a network serviceProvider of a physical network
-func (s *NetworkService) UpdateNetworkServiceProvider(p *UpdateNetworkServiceProviderParams) (*UpdateNetworkServiceProviderResponse, error) {
+func (s *NetworkService) UpdateNetworkServiceProvider(p *UpdateNetworkServiceProviderParams, wait bool) (*UpdateNetworkServiceProviderResponse, error) {
 	resp, err := s.cs.newRequest("updateNetworkServiceProvider", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2497,8 +2674,8 @@ func (s *NetworkService) UpdateNetworkServiceProvider(p *UpdateNetworkServicePro
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2517,6 +2694,30 @@ func (s *NetworkService) UpdateNetworkServiceProvider(p *UpdateNetworkServicePro
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForUpdateNetworkServiceProvider(jobid string) (*UpdateNetworkServiceProviderResponse, error) {
+	var r UpdateNetworkServiceProviderResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2624,7 +2825,7 @@ func (s *NetworkService) NewCreateStorageNetworkIpRangeParams(gateway string, ne
 }
 
 // Creates a Storage network IP range.
-func (s *NetworkService) CreateStorageNetworkIpRange(p *CreateStorageNetworkIpRangeParams) (*CreateStorageNetworkIpRangeResponse, error) {
+func (s *NetworkService) CreateStorageNetworkIpRange(p *CreateStorageNetworkIpRangeParams, wait bool) (*CreateStorageNetworkIpRangeResponse, error) {
 	resp, err := s.cs.newRequest("createStorageNetworkIpRange", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2635,8 +2836,8 @@ func (s *NetworkService) CreateStorageNetworkIpRange(p *CreateStorageNetworkIpRa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2655,6 +2856,30 @@ func (s *NetworkService) CreateStorageNetworkIpRange(p *CreateStorageNetworkIpRa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForCreateStorageNetworkIpRange(jobid string) (*CreateStorageNetworkIpRangeResponse, error) {
+	var r CreateStorageNetworkIpRangeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2705,7 +2930,7 @@ func (s *NetworkService) NewDeleteStorageNetworkIpRangeParams(id string) *Delete
 }
 
 // Deletes a storage network IP Range.
-func (s *NetworkService) DeleteStorageNetworkIpRange(p *DeleteStorageNetworkIpRangeParams) (*DeleteStorageNetworkIpRangeResponse, error) {
+func (s *NetworkService) DeleteStorageNetworkIpRange(p *DeleteStorageNetworkIpRangeParams, wait bool) (*DeleteStorageNetworkIpRangeResponse, error) {
 	resp, err := s.cs.newRequest("deleteStorageNetworkIpRange", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2716,8 +2941,8 @@ func (s *NetworkService) DeleteStorageNetworkIpRange(p *DeleteStorageNetworkIpRa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2731,6 +2956,25 @@ func (s *NetworkService) DeleteStorageNetworkIpRange(p *DeleteStorageNetworkIpRa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForDeleteStorageNetworkIpRange(jobid string) (*DeleteStorageNetworkIpRangeResponse, error) {
+	var r DeleteStorageNetworkIpRangeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2965,7 +3209,7 @@ func (s *NetworkService) NewUpdateStorageNetworkIpRangeParams(id string) *Update
 }
 
 // Update a Storage network IP range, only allowed when no IPs in this range have been allocated.
-func (s *NetworkService) UpdateStorageNetworkIpRange(p *UpdateStorageNetworkIpRangeParams) (*UpdateStorageNetworkIpRangeResponse, error) {
+func (s *NetworkService) UpdateStorageNetworkIpRange(p *UpdateStorageNetworkIpRangeParams, wait bool) (*UpdateStorageNetworkIpRangeResponse, error) {
 	resp, err := s.cs.newRequest("updateStorageNetworkIpRange", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2976,8 +3220,8 @@ func (s *NetworkService) UpdateStorageNetworkIpRange(p *UpdateStorageNetworkIpRa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2996,6 +3240,30 @@ func (s *NetworkService) UpdateStorageNetworkIpRange(p *UpdateStorageNetworkIpRa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkService) WaitForUpdateStorageNetworkIpRange(jobid string) (*UpdateStorageNetworkIpRangeResponse, error) {
+	var r UpdateStorageNetworkIpRangeResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

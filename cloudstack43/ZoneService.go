@@ -1194,7 +1194,7 @@ func (s *ZoneService) NewDedicateZoneParams(domainid string, zoneid string) *Ded
 }
 
 // Dedicates a zones.
-func (s *ZoneService) DedicateZone(p *DedicateZoneParams) (*DedicateZoneResponse, error) {
+func (s *ZoneService) DedicateZone(p *DedicateZoneParams, wait bool) (*DedicateZoneResponse, error) {
 	resp, err := s.cs.newRequest("dedicateZone", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1205,8 +1205,8 @@ func (s *ZoneService) DedicateZone(p *DedicateZoneParams) (*DedicateZoneResponse
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1225,6 +1225,30 @@ func (s *ZoneService) DedicateZone(p *DedicateZoneParams) (*DedicateZoneResponse
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ZoneService) WaitForDedicateZone(jobid string) (*DedicateZoneResponse, error) {
+	var r DedicateZoneResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1272,7 +1296,7 @@ func (s *ZoneService) NewReleaseDedicatedZoneParams(zoneid string) *ReleaseDedic
 }
 
 // Release dedication of zone
-func (s *ZoneService) ReleaseDedicatedZone(p *ReleaseDedicatedZoneParams) (*ReleaseDedicatedZoneResponse, error) {
+func (s *ZoneService) ReleaseDedicatedZone(p *ReleaseDedicatedZoneParams, wait bool) (*ReleaseDedicatedZoneResponse, error) {
 	resp, err := s.cs.newRequest("releaseDedicatedZone", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1283,8 +1307,8 @@ func (s *ZoneService) ReleaseDedicatedZone(p *ReleaseDedicatedZoneParams) (*Rele
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1298,6 +1322,25 @@ func (s *ZoneService) ReleaseDedicatedZone(p *ReleaseDedicatedZoneParams) (*Rele
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ZoneService) WaitForReleaseDedicatedZone(jobid string) (*ReleaseDedicatedZoneResponse, error) {
+	var r ReleaseDedicatedZoneResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

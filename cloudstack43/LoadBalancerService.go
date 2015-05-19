@@ -196,7 +196,7 @@ func (s *LoadBalancerService) NewCreateLoadBalancerRuleParams(algorithm string, 
 }
 
 // Creates a load balancer rule
-func (s *LoadBalancerService) CreateLoadBalancerRule(p *CreateLoadBalancerRuleParams) (*CreateLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) CreateLoadBalancerRule(p *CreateLoadBalancerRuleParams, wait bool) (*CreateLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("createLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -207,8 +207,8 @@ func (s *LoadBalancerService) CreateLoadBalancerRule(p *CreateLoadBalancerRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -227,6 +227,30 @@ func (s *LoadBalancerService) CreateLoadBalancerRule(p *CreateLoadBalancerRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForCreateLoadBalancerRule(jobid string) (*CreateLoadBalancerRuleResponse, error) {
+	var r CreateLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -298,7 +322,7 @@ func (s *LoadBalancerService) NewDeleteLoadBalancerRuleParams(id string) *Delete
 }
 
 // Deletes a load balancer rule.
-func (s *LoadBalancerService) DeleteLoadBalancerRule(p *DeleteLoadBalancerRuleParams) (*DeleteLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) DeleteLoadBalancerRule(p *DeleteLoadBalancerRuleParams, wait bool) (*DeleteLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("deleteLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -309,8 +333,8 @@ func (s *LoadBalancerService) DeleteLoadBalancerRule(p *DeleteLoadBalancerRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -324,6 +348,25 @@ func (s *LoadBalancerService) DeleteLoadBalancerRule(p *DeleteLoadBalancerRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteLoadBalancerRule(jobid string) (*DeleteLoadBalancerRuleResponse, error) {
+	var r DeleteLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -380,7 +423,7 @@ func (s *LoadBalancerService) NewRemoveFromLoadBalancerRuleParams(id string, vir
 }
 
 // Removes a virtual machine or a list of virtual machines from a load balancer rule.
-func (s *LoadBalancerService) RemoveFromLoadBalancerRule(p *RemoveFromLoadBalancerRuleParams) (*RemoveFromLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) RemoveFromLoadBalancerRule(p *RemoveFromLoadBalancerRuleParams, wait bool) (*RemoveFromLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("removeFromLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -391,8 +434,8 @@ func (s *LoadBalancerService) RemoveFromLoadBalancerRule(p *RemoveFromLoadBalanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -406,6 +449,25 @@ func (s *LoadBalancerService) RemoveFromLoadBalancerRule(p *RemoveFromLoadBalanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForRemoveFromLoadBalancerRule(jobid string) (*RemoveFromLoadBalancerRuleResponse, error) {
+	var r RemoveFromLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -462,7 +524,7 @@ func (s *LoadBalancerService) NewAssignToLoadBalancerRuleParams(id string, virtu
 }
 
 // Assigns virtual machine or a list of virtual machines to a load balancer rule.
-func (s *LoadBalancerService) AssignToLoadBalancerRule(p *AssignToLoadBalancerRuleParams) (*AssignToLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) AssignToLoadBalancerRule(p *AssignToLoadBalancerRuleParams, wait bool) (*AssignToLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("assignToLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -473,8 +535,8 @@ func (s *LoadBalancerService) AssignToLoadBalancerRule(p *AssignToLoadBalancerRu
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -488,6 +550,25 @@ func (s *LoadBalancerService) AssignToLoadBalancerRule(p *AssignToLoadBalancerRu
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForAssignToLoadBalancerRule(jobid string) (*AssignToLoadBalancerRuleResponse, error) {
+	var r AssignToLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -582,7 +663,7 @@ func (s *LoadBalancerService) NewCreateLBStickinessPolicyParams(lbruleid string,
 }
 
 // Creates a Load Balancer stickiness policy
-func (s *LoadBalancerService) CreateLBStickinessPolicy(p *CreateLBStickinessPolicyParams) (*CreateLBStickinessPolicyResponse, error) {
+func (s *LoadBalancerService) CreateLBStickinessPolicy(p *CreateLBStickinessPolicyParams, wait bool) (*CreateLBStickinessPolicyResponse, error) {
 	resp, err := s.cs.newRequest("createLBStickinessPolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -593,8 +674,8 @@ func (s *LoadBalancerService) CreateLBStickinessPolicy(p *CreateLBStickinessPoli
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -613,6 +694,30 @@ func (s *LoadBalancerService) CreateLBStickinessPolicy(p *CreateLBStickinessPoli
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForCreateLBStickinessPolicy(jobid string) (*CreateLBStickinessPolicyResponse, error) {
+	var r CreateLBStickinessPolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -670,7 +775,7 @@ func (s *LoadBalancerService) NewDeleteLBStickinessPolicyParams(id string) *Dele
 }
 
 // Deletes a LB stickiness policy.
-func (s *LoadBalancerService) DeleteLBStickinessPolicy(p *DeleteLBStickinessPolicyParams) (*DeleteLBStickinessPolicyResponse, error) {
+func (s *LoadBalancerService) DeleteLBStickinessPolicy(p *DeleteLBStickinessPolicyParams, wait bool) (*DeleteLBStickinessPolicyResponse, error) {
 	resp, err := s.cs.newRequest("deleteLBStickinessPolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -681,8 +786,8 @@ func (s *LoadBalancerService) DeleteLBStickinessPolicy(p *DeleteLBStickinessPoli
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -696,6 +801,25 @@ func (s *LoadBalancerService) DeleteLBStickinessPolicy(p *DeleteLBStickinessPoli
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteLBStickinessPolicy(jobid string) (*DeleteLBStickinessPolicyResponse, error) {
+	var r DeleteLBStickinessPolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1335,7 +1459,7 @@ func (s *LoadBalancerService) NewCreateLBHealthCheckPolicyParams(lbruleid string
 }
 
 // Creates a Load Balancer healthcheck policy
-func (s *LoadBalancerService) CreateLBHealthCheckPolicy(p *CreateLBHealthCheckPolicyParams) (*CreateLBHealthCheckPolicyResponse, error) {
+func (s *LoadBalancerService) CreateLBHealthCheckPolicy(p *CreateLBHealthCheckPolicyParams, wait bool) (*CreateLBHealthCheckPolicyResponse, error) {
 	resp, err := s.cs.newRequest("createLBHealthCheckPolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1346,8 +1470,8 @@ func (s *LoadBalancerService) CreateLBHealthCheckPolicy(p *CreateLBHealthCheckPo
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1366,6 +1490,30 @@ func (s *LoadBalancerService) CreateLBHealthCheckPolicy(p *CreateLBHealthCheckPo
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForCreateLBHealthCheckPolicy(jobid string) (*CreateLBHealthCheckPolicyResponse, error) {
+	var r CreateLBHealthCheckPolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1422,7 +1570,7 @@ func (s *LoadBalancerService) NewDeleteLBHealthCheckPolicyParams(id string) *Del
 }
 
 // Deletes a load balancer HealthCheck policy.
-func (s *LoadBalancerService) DeleteLBHealthCheckPolicy(p *DeleteLBHealthCheckPolicyParams) (*DeleteLBHealthCheckPolicyResponse, error) {
+func (s *LoadBalancerService) DeleteLBHealthCheckPolicy(p *DeleteLBHealthCheckPolicyParams, wait bool) (*DeleteLBHealthCheckPolicyResponse, error) {
 	resp, err := s.cs.newRequest("deleteLBHealthCheckPolicy", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1433,8 +1581,8 @@ func (s *LoadBalancerService) DeleteLBHealthCheckPolicy(p *DeleteLBHealthCheckPo
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1448,6 +1596,25 @@ func (s *LoadBalancerService) DeleteLBHealthCheckPolicy(p *DeleteLBHealthCheckPo
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteLBHealthCheckPolicy(jobid string) (*DeleteLBHealthCheckPolicyResponse, error) {
+	var r DeleteLBHealthCheckPolicyResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1759,7 +1926,7 @@ func (s *LoadBalancerService) NewUpdateLoadBalancerRuleParams(id string) *Update
 }
 
 // Updates load balancer
-func (s *LoadBalancerService) UpdateLoadBalancerRule(p *UpdateLoadBalancerRuleParams) (*UpdateLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) UpdateLoadBalancerRule(p *UpdateLoadBalancerRuleParams, wait bool) (*UpdateLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("updateLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1770,8 +1937,8 @@ func (s *LoadBalancerService) UpdateLoadBalancerRule(p *UpdateLoadBalancerRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1790,6 +1957,30 @@ func (s *LoadBalancerService) UpdateLoadBalancerRule(p *UpdateLoadBalancerRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForUpdateLoadBalancerRule(jobid string) (*UpdateLoadBalancerRuleResponse, error) {
+	var r UpdateLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2096,7 +2287,7 @@ func (s *LoadBalancerService) NewAssignCertToLoadBalancerParams(certid string, l
 }
 
 // Assigns a certificate to a Load Balancer Rule
-func (s *LoadBalancerService) AssignCertToLoadBalancer(p *AssignCertToLoadBalancerParams) (*AssignCertToLoadBalancerResponse, error) {
+func (s *LoadBalancerService) AssignCertToLoadBalancer(p *AssignCertToLoadBalancerParams, wait bool) (*AssignCertToLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("assignCertToLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2107,8 +2298,8 @@ func (s *LoadBalancerService) AssignCertToLoadBalancer(p *AssignCertToLoadBalanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2122,6 +2313,25 @@ func (s *LoadBalancerService) AssignCertToLoadBalancer(p *AssignCertToLoadBalanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForAssignCertToLoadBalancer(jobid string) (*AssignCertToLoadBalancerResponse, error) {
+	var r AssignCertToLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2165,7 +2375,7 @@ func (s *LoadBalancerService) NewRemoveCertFromLoadBalancerParams(lbruleid strin
 }
 
 // Removes a certificate from a Load Balancer Rule
-func (s *LoadBalancerService) RemoveCertFromLoadBalancer(p *RemoveCertFromLoadBalancerParams) (*RemoveCertFromLoadBalancerResponse, error) {
+func (s *LoadBalancerService) RemoveCertFromLoadBalancer(p *RemoveCertFromLoadBalancerParams, wait bool) (*RemoveCertFromLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("removeCertFromLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2176,8 +2386,8 @@ func (s *LoadBalancerService) RemoveCertFromLoadBalancer(p *RemoveCertFromLoadBa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2191,6 +2401,25 @@ func (s *LoadBalancerService) RemoveCertFromLoadBalancer(p *RemoveCertFromLoadBa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForRemoveCertFromLoadBalancer(jobid string) (*RemoveCertFromLoadBalancerResponse, error) {
+	var r RemoveCertFromLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2282,7 +2511,7 @@ func (s *LoadBalancerService) NewAddF5LoadBalancerParams(networkdevicetype strin
 }
 
 // Adds a F5 BigIP load balancer device
-func (s *LoadBalancerService) AddF5LoadBalancer(p *AddF5LoadBalancerParams) (*AddF5LoadBalancerResponse, error) {
+func (s *LoadBalancerService) AddF5LoadBalancer(p *AddF5LoadBalancerParams, wait bool) (*AddF5LoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("addF5LoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2293,8 +2522,8 @@ func (s *LoadBalancerService) AddF5LoadBalancer(p *AddF5LoadBalancerParams) (*Ad
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2313,6 +2542,30 @@ func (s *LoadBalancerService) AddF5LoadBalancer(p *AddF5LoadBalancerParams) (*Ad
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForAddF5LoadBalancer(jobid string) (*AddF5LoadBalancerResponse, error) {
+	var r AddF5LoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2376,7 +2629,7 @@ func (s *LoadBalancerService) NewConfigureF5LoadBalancerParams(lbdeviceid string
 }
 
 // configures a F5 load balancer device
-func (s *LoadBalancerService) ConfigureF5LoadBalancer(p *ConfigureF5LoadBalancerParams) (*ConfigureF5LoadBalancerResponse, error) {
+func (s *LoadBalancerService) ConfigureF5LoadBalancer(p *ConfigureF5LoadBalancerParams, wait bool) (*ConfigureF5LoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("configureF5LoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2387,8 +2640,8 @@ func (s *LoadBalancerService) ConfigureF5LoadBalancer(p *ConfigureF5LoadBalancer
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2407,6 +2660,30 @@ func (s *LoadBalancerService) ConfigureF5LoadBalancer(p *ConfigureF5LoadBalancer
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForConfigureF5LoadBalancer(jobid string) (*ConfigureF5LoadBalancerResponse, error) {
+	var r ConfigureF5LoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2458,7 +2735,7 @@ func (s *LoadBalancerService) NewDeleteF5LoadBalancerParams(lbdeviceid string) *
 }
 
 //  delete a F5 load balancer device
-func (s *LoadBalancerService) DeleteF5LoadBalancer(p *DeleteF5LoadBalancerParams) (*DeleteF5LoadBalancerResponse, error) {
+func (s *LoadBalancerService) DeleteF5LoadBalancer(p *DeleteF5LoadBalancerParams, wait bool) (*DeleteF5LoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("deleteF5LoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2469,8 +2746,8 @@ func (s *LoadBalancerService) DeleteF5LoadBalancer(p *DeleteF5LoadBalancerParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2484,6 +2761,25 @@ func (s *LoadBalancerService) DeleteF5LoadBalancer(p *DeleteF5LoadBalancerParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteF5LoadBalancer(jobid string) (*DeleteF5LoadBalancerResponse, error) {
+	var r DeleteF5LoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2730,7 +3026,7 @@ func (s *LoadBalancerService) NewAddNetscalerLoadBalancerParams(networkdevicetyp
 }
 
 // Adds a netscaler load balancer device
-func (s *LoadBalancerService) AddNetscalerLoadBalancer(p *AddNetscalerLoadBalancerParams) (*AddNetscalerLoadBalancerResponse, error) {
+func (s *LoadBalancerService) AddNetscalerLoadBalancer(p *AddNetscalerLoadBalancerParams, wait bool) (*AddNetscalerLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("addNetscalerLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2741,8 +3037,8 @@ func (s *LoadBalancerService) AddNetscalerLoadBalancer(p *AddNetscalerLoadBalanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2761,6 +3057,30 @@ func (s *LoadBalancerService) AddNetscalerLoadBalancer(p *AddNetscalerLoadBalanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForAddNetscalerLoadBalancer(jobid string) (*AddNetscalerLoadBalancerResponse, error) {
+	var r AddNetscalerLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2817,7 +3137,7 @@ func (s *LoadBalancerService) NewDeleteNetscalerLoadBalancerParams(lbdeviceid st
 }
 
 //  delete a netscaler load balancer device
-func (s *LoadBalancerService) DeleteNetscalerLoadBalancer(p *DeleteNetscalerLoadBalancerParams) (*DeleteNetscalerLoadBalancerResponse, error) {
+func (s *LoadBalancerService) DeleteNetscalerLoadBalancer(p *DeleteNetscalerLoadBalancerParams, wait bool) (*DeleteNetscalerLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("deleteNetscalerLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2828,8 +3148,8 @@ func (s *LoadBalancerService) DeleteNetscalerLoadBalancer(p *DeleteNetscalerLoad
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2843,6 +3163,25 @@ func (s *LoadBalancerService) DeleteNetscalerLoadBalancer(p *DeleteNetscalerLoad
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteNetscalerLoadBalancer(jobid string) (*DeleteNetscalerLoadBalancerResponse, error) {
+	var r DeleteNetscalerLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2934,7 +3273,7 @@ func (s *LoadBalancerService) NewConfigureNetscalerLoadBalancerParams(lbdeviceid
 }
 
 // configures a netscaler load balancer device
-func (s *LoadBalancerService) ConfigureNetscalerLoadBalancer(p *ConfigureNetscalerLoadBalancerParams) (*ConfigureNetscalerLoadBalancerResponse, error) {
+func (s *LoadBalancerService) ConfigureNetscalerLoadBalancer(p *ConfigureNetscalerLoadBalancerParams, wait bool) (*ConfigureNetscalerLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("configureNetscalerLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2945,8 +3284,8 @@ func (s *LoadBalancerService) ConfigureNetscalerLoadBalancer(p *ConfigureNetscal
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2965,6 +3304,30 @@ func (s *LoadBalancerService) ConfigureNetscalerLoadBalancer(p *ConfigureNetscal
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForConfigureNetscalerLoadBalancer(jobid string) (*ConfigureNetscalerLoadBalancerResponse, error) {
+	var r ConfigureNetscalerLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3227,7 +3590,7 @@ func (s *LoadBalancerService) NewCreateGlobalLoadBalancerRuleParams(gslbdomainna
 }
 
 // Creates a global load balancer rule
-func (s *LoadBalancerService) CreateGlobalLoadBalancerRule(p *CreateGlobalLoadBalancerRuleParams) (*CreateGlobalLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) CreateGlobalLoadBalancerRule(p *CreateGlobalLoadBalancerRuleParams, wait bool) (*CreateGlobalLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("createGlobalLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3238,8 +3601,8 @@ func (s *LoadBalancerService) CreateGlobalLoadBalancerRule(p *CreateGlobalLoadBa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3258,6 +3621,30 @@ func (s *LoadBalancerService) CreateGlobalLoadBalancerRule(p *CreateGlobalLoadBa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForCreateGlobalLoadBalancerRule(jobid string) (*CreateGlobalLoadBalancerRuleResponse, error) {
+	var r CreateGlobalLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3344,7 +3731,7 @@ func (s *LoadBalancerService) NewDeleteGlobalLoadBalancerRuleParams(id string) *
 }
 
 // Deletes a global load balancer rule.
-func (s *LoadBalancerService) DeleteGlobalLoadBalancerRule(p *DeleteGlobalLoadBalancerRuleParams) (*DeleteGlobalLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) DeleteGlobalLoadBalancerRule(p *DeleteGlobalLoadBalancerRuleParams, wait bool) (*DeleteGlobalLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("deleteGlobalLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3355,8 +3742,8 @@ func (s *LoadBalancerService) DeleteGlobalLoadBalancerRule(p *DeleteGlobalLoadBa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3370,6 +3757,25 @@ func (s *LoadBalancerService) DeleteGlobalLoadBalancerRule(p *DeleteGlobalLoadBa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteGlobalLoadBalancerRule(jobid string) (*DeleteGlobalLoadBalancerRuleResponse, error) {
+	var r DeleteGlobalLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3446,7 +3852,7 @@ func (s *LoadBalancerService) NewUpdateGlobalLoadBalancerRuleParams(id string) *
 }
 
 // update global load balancer rules.
-func (s *LoadBalancerService) UpdateGlobalLoadBalancerRule(p *UpdateGlobalLoadBalancerRuleParams) (*UpdateGlobalLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) UpdateGlobalLoadBalancerRule(p *UpdateGlobalLoadBalancerRuleParams, wait bool) (*UpdateGlobalLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("updateGlobalLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3457,8 +3863,8 @@ func (s *LoadBalancerService) UpdateGlobalLoadBalancerRule(p *UpdateGlobalLoadBa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3477,6 +3883,30 @@ func (s *LoadBalancerService) UpdateGlobalLoadBalancerRule(p *UpdateGlobalLoadBa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForUpdateGlobalLoadBalancerRule(jobid string) (*UpdateGlobalLoadBalancerRuleResponse, error) {
+	var r UpdateGlobalLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3881,7 +4311,7 @@ func (s *LoadBalancerService) NewAssignToGlobalLoadBalancerRuleParams(id string,
 }
 
 // Assign load balancer rule or list of load balancer rules to a global load balancer rules.
-func (s *LoadBalancerService) AssignToGlobalLoadBalancerRule(p *AssignToGlobalLoadBalancerRuleParams) (*AssignToGlobalLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) AssignToGlobalLoadBalancerRule(p *AssignToGlobalLoadBalancerRuleParams, wait bool) (*AssignToGlobalLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("assignToGlobalLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3892,8 +4322,8 @@ func (s *LoadBalancerService) AssignToGlobalLoadBalancerRule(p *AssignToGlobalLo
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3907,6 +4337,25 @@ func (s *LoadBalancerService) AssignToGlobalLoadBalancerRule(p *AssignToGlobalLo
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForAssignToGlobalLoadBalancerRule(jobid string) (*AssignToGlobalLoadBalancerRuleResponse, error) {
+	var r AssignToGlobalLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -3963,7 +4412,7 @@ func (s *LoadBalancerService) NewRemoveFromGlobalLoadBalancerRuleParams(id strin
 }
 
 // Removes a load balancer rule association with global load balancer rule
-func (s *LoadBalancerService) RemoveFromGlobalLoadBalancerRule(p *RemoveFromGlobalLoadBalancerRuleParams) (*RemoveFromGlobalLoadBalancerRuleResponse, error) {
+func (s *LoadBalancerService) RemoveFromGlobalLoadBalancerRule(p *RemoveFromGlobalLoadBalancerRuleParams, wait bool) (*RemoveFromGlobalLoadBalancerRuleResponse, error) {
 	resp, err := s.cs.newRequest("removeFromGlobalLoadBalancerRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -3974,8 +4423,8 @@ func (s *LoadBalancerService) RemoveFromGlobalLoadBalancerRule(p *RemoveFromGlob
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -3989,6 +4438,25 @@ func (s *LoadBalancerService) RemoveFromGlobalLoadBalancerRule(p *RemoveFromGlob
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForRemoveFromGlobalLoadBalancerRule(jobid string) (*RemoveFromGlobalLoadBalancerRuleResponse, error) {
+	var r RemoveFromGlobalLoadBalancerRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -4128,7 +4596,7 @@ func (s *LoadBalancerService) NewCreateLoadBalancerParams(algorithm string, inst
 }
 
 // Creates a Load Balancer
-func (s *LoadBalancerService) CreateLoadBalancer(p *CreateLoadBalancerParams) (*CreateLoadBalancerResponse, error) {
+func (s *LoadBalancerService) CreateLoadBalancer(p *CreateLoadBalancerParams, wait bool) (*CreateLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("createLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -4139,8 +4607,8 @@ func (s *LoadBalancerService) CreateLoadBalancer(p *CreateLoadBalancerParams) (*
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -4159,6 +4627,30 @@ func (s *LoadBalancerService) CreateLoadBalancer(p *CreateLoadBalancerParams) (*
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForCreateLoadBalancer(jobid string) (*CreateLoadBalancerResponse, error) {
+	var r CreateLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -4557,7 +5049,7 @@ func (s *LoadBalancerService) NewDeleteLoadBalancerParams(id string) *DeleteLoad
 }
 
 // Deletes a load balancer
-func (s *LoadBalancerService) DeleteLoadBalancer(p *DeleteLoadBalancerParams) (*DeleteLoadBalancerResponse, error) {
+func (s *LoadBalancerService) DeleteLoadBalancer(p *DeleteLoadBalancerParams, wait bool) (*DeleteLoadBalancerResponse, error) {
 	resp, err := s.cs.newRequest("deleteLoadBalancer", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -4568,8 +5060,8 @@ func (s *LoadBalancerService) DeleteLoadBalancer(p *DeleteLoadBalancerParams) (*
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -4583,6 +5075,25 @@ func (s *LoadBalancerService) DeleteLoadBalancer(p *DeleteLoadBalancerParams) (*
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *LoadBalancerService) WaitForDeleteLoadBalancer(jobid string) (*DeleteLoadBalancerResponse, error) {
+	var r DeleteLoadBalancerResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

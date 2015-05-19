@@ -69,7 +69,7 @@ func (s *ISOService) NewAttachIsoParams(id string, virtualmachineid string) *Att
 }
 
 // Attaches an ISO to a virtual machine.
-func (s *ISOService) AttachIso(p *AttachIsoParams) (*AttachIsoResponse, error) {
+func (s *ISOService) AttachIso(p *AttachIsoParams, wait bool) (*AttachIsoResponse, error) {
 	resp, err := s.cs.newRequest("attachIso", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -80,8 +80,8 @@ func (s *ISOService) AttachIso(p *AttachIsoParams) (*AttachIsoResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -100,6 +100,30 @@ func (s *ISOService) AttachIso(p *AttachIsoParams) (*AttachIsoResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ISOService) WaitForAttachIso(jobid string) (*AttachIsoResponse, error) {
+	var r AttachIsoResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -275,7 +299,7 @@ func (s *ISOService) NewDetachIsoParams(virtualmachineid string) *DetachIsoParam
 }
 
 // Detaches any ISO file (if any) currently attached to a virtual machine.
-func (s *ISOService) DetachIso(p *DetachIsoParams) (*DetachIsoResponse, error) {
+func (s *ISOService) DetachIso(p *DetachIsoParams, wait bool) (*DetachIsoResponse, error) {
 	resp, err := s.cs.newRequest("detachIso", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -286,8 +310,8 @@ func (s *ISOService) DetachIso(p *DetachIsoParams) (*DetachIsoResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -306,6 +330,30 @@ func (s *ISOService) DetachIso(p *DetachIsoParams) (*DetachIsoResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ISOService) WaitForDetachIso(jobid string) (*DetachIsoResponse, error) {
+	var r DetachIsoResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1321,7 +1369,7 @@ func (s *ISOService) NewDeleteIsoParams(id string) *DeleteIsoParams {
 }
 
 // Deletes an ISO file.
-func (s *ISOService) DeleteIso(p *DeleteIsoParams) (*DeleteIsoResponse, error) {
+func (s *ISOService) DeleteIso(p *DeleteIsoParams, wait bool) (*DeleteIsoResponse, error) {
 	resp, err := s.cs.newRequest("deleteIso", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1332,8 +1380,8 @@ func (s *ISOService) DeleteIso(p *DeleteIsoParams) (*DeleteIsoResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1347,6 +1395,25 @@ func (s *ISOService) DeleteIso(p *DeleteIsoParams) (*DeleteIsoResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ISOService) WaitForDeleteIso(jobid string) (*DeleteIsoResponse, error) {
+	var r DeleteIsoResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1413,7 +1480,7 @@ func (s *ISOService) NewCopyIsoParams(destzoneid string, id string) *CopyIsoPara
 }
 
 // Copies an iso from one zone to another.
-func (s *ISOService) CopyIso(p *CopyIsoParams) (*CopyIsoResponse, error) {
+func (s *ISOService) CopyIso(p *CopyIsoParams, wait bool) (*CopyIsoResponse, error) {
 	resp, err := s.cs.newRequest("copyIso", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1424,8 +1491,8 @@ func (s *ISOService) CopyIso(p *CopyIsoParams) (*CopyIsoResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1444,6 +1511,30 @@ func (s *ISOService) CopyIso(p *CopyIsoParams) (*CopyIsoResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ISOService) WaitForCopyIso(jobid string) (*CopyIsoResponse, error) {
+	var r CopyIsoResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1775,7 +1866,7 @@ func (s *ISOService) NewExtractIsoParams(id string, mode string) *ExtractIsoPara
 }
 
 // Extracts an ISO
-func (s *ISOService) ExtractIso(p *ExtractIsoParams) (*ExtractIsoResponse, error) {
+func (s *ISOService) ExtractIso(p *ExtractIsoParams, wait bool) (*ExtractIsoResponse, error) {
 	resp, err := s.cs.newRequest("extractIso", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1786,8 +1877,8 @@ func (s *ISOService) ExtractIso(p *ExtractIsoParams) (*ExtractIsoResponse, error
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1806,6 +1897,30 @@ func (s *ISOService) ExtractIso(p *ExtractIsoParams) (*ExtractIsoResponse, error
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ISOService) WaitForExtractIso(jobid string) (*ExtractIsoResponse, error) {
+	var r ExtractIsoResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

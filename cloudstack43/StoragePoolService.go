@@ -146,7 +146,7 @@ func (s *StoragePoolService) NewEnableStorageMaintenanceParams(id string) *Enabl
 }
 
 // Puts storage pool into maintenance state
-func (s *StoragePoolService) EnableStorageMaintenance(p *EnableStorageMaintenanceParams) (*EnableStorageMaintenanceResponse, error) {
+func (s *StoragePoolService) EnableStorageMaintenance(p *EnableStorageMaintenanceParams, wait bool) (*EnableStorageMaintenanceResponse, error) {
 	resp, err := s.cs.newRequest("enableStorageMaintenance", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -157,8 +157,8 @@ func (s *StoragePoolService) EnableStorageMaintenance(p *EnableStorageMaintenanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -177,6 +177,30 @@ func (s *StoragePoolService) EnableStorageMaintenance(p *EnableStorageMaintenanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *StoragePoolService) WaitForEnableStorageMaintenance(jobid string) (*EnableStorageMaintenanceResponse, error) {
+	var r EnableStorageMaintenanceResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -240,7 +264,7 @@ func (s *StoragePoolService) NewCancelStorageMaintenanceParams(id string) *Cance
 }
 
 // Cancels maintenance for primary storage
-func (s *StoragePoolService) CancelStorageMaintenance(p *CancelStorageMaintenanceParams) (*CancelStorageMaintenanceResponse, error) {
+func (s *StoragePoolService) CancelStorageMaintenance(p *CancelStorageMaintenanceParams, wait bool) (*CancelStorageMaintenanceResponse, error) {
 	resp, err := s.cs.newRequest("cancelStorageMaintenance", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -251,8 +275,8 @@ func (s *StoragePoolService) CancelStorageMaintenance(p *CancelStorageMaintenanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -271,6 +295,30 @@ func (s *StoragePoolService) CancelStorageMaintenance(p *CancelStorageMaintenanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *StoragePoolService) WaitForCancelStorageMaintenance(jobid string) (*CancelStorageMaintenanceResponse, error) {
+	var r CancelStorageMaintenanceResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

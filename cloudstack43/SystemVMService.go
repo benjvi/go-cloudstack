@@ -57,7 +57,7 @@ func (s *SystemVMService) NewStartSystemVmParams(id string) *StartSystemVmParams
 }
 
 // Starts a system virtual machine.
-func (s *SystemVMService) StartSystemVm(p *StartSystemVmParams) (*StartSystemVmResponse, error) {
+func (s *SystemVMService) StartSystemVm(p *StartSystemVmParams, wait bool) (*StartSystemVmResponse, error) {
 	resp, err := s.cs.newRequest("startSystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -68,8 +68,8 @@ func (s *SystemVMService) StartSystemVm(p *StartSystemVmParams) (*StartSystemVmR
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -88,6 +88,30 @@ func (s *SystemVMService) StartSystemVm(p *StartSystemVmParams) (*StartSystemVmR
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForStartSystemVm(jobid string) (*StartSystemVmResponse, error) {
+	var r StartSystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -156,7 +180,7 @@ func (s *SystemVMService) NewRebootSystemVmParams(id string) *RebootSystemVmPara
 }
 
 // Reboots a system VM.
-func (s *SystemVMService) RebootSystemVm(p *RebootSystemVmParams) (*RebootSystemVmResponse, error) {
+func (s *SystemVMService) RebootSystemVm(p *RebootSystemVmParams, wait bool) (*RebootSystemVmResponse, error) {
 	resp, err := s.cs.newRequest("rebootSystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -167,8 +191,8 @@ func (s *SystemVMService) RebootSystemVm(p *RebootSystemVmParams) (*RebootSystem
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -187,6 +211,30 @@ func (s *SystemVMService) RebootSystemVm(p *RebootSystemVmParams) (*RebootSystem
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForRebootSystemVm(jobid string) (*RebootSystemVmResponse, error) {
+	var r RebootSystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -267,7 +315,7 @@ func (s *SystemVMService) NewStopSystemVmParams(id string) *StopSystemVmParams {
 }
 
 // Stops a system VM.
-func (s *SystemVMService) StopSystemVm(p *StopSystemVmParams) (*StopSystemVmResponse, error) {
+func (s *SystemVMService) StopSystemVm(p *StopSystemVmParams, wait bool) (*StopSystemVmResponse, error) {
 	resp, err := s.cs.newRequest("stopSystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -278,8 +326,8 @@ func (s *SystemVMService) StopSystemVm(p *StopSystemVmParams) (*StopSystemVmResp
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -298,6 +346,30 @@ func (s *SystemVMService) StopSystemVm(p *StopSystemVmParams) (*StopSystemVmResp
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForStopSystemVm(jobid string) (*StopSystemVmResponse, error) {
+	var r StopSystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -366,7 +438,7 @@ func (s *SystemVMService) NewDestroySystemVmParams(id string) *DestroySystemVmPa
 }
 
 // Destroyes a system virtual machine.
-func (s *SystemVMService) DestroySystemVm(p *DestroySystemVmParams) (*DestroySystemVmResponse, error) {
+func (s *SystemVMService) DestroySystemVm(p *DestroySystemVmParams, wait bool) (*DestroySystemVmResponse, error) {
 	resp, err := s.cs.newRequest("destroySystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -377,8 +449,8 @@ func (s *SystemVMService) DestroySystemVm(p *DestroySystemVmParams) (*DestroySys
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -397,6 +469,30 @@ func (s *SystemVMService) DestroySystemVm(p *DestroySystemVmParams) (*DestroySys
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForDestroySystemVm(jobid string) (*DestroySystemVmResponse, error) {
+	var r DestroySystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -740,7 +836,7 @@ func (s *SystemVMService) NewMigrateSystemVmParams(hostid string, virtualmachine
 }
 
 // Attempts Migration of a system virtual machine to the host specified.
-func (s *SystemVMService) MigrateSystemVm(p *MigrateSystemVmParams) (*MigrateSystemVmResponse, error) {
+func (s *SystemVMService) MigrateSystemVm(p *MigrateSystemVmParams, wait bool) (*MigrateSystemVmResponse, error) {
 	resp, err := s.cs.newRequest("migrateSystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -751,8 +847,8 @@ func (s *SystemVMService) MigrateSystemVm(p *MigrateSystemVmParams) (*MigrateSys
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -771,6 +867,30 @@ func (s *SystemVMService) MigrateSystemVm(p *MigrateSystemVmParams) (*MigrateSys
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForMigrateSystemVm(jobid string) (*MigrateSystemVmResponse, error) {
+	var r MigrateSystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -971,7 +1091,7 @@ func (s *SystemVMService) NewScaleSystemVmParams(id string, serviceofferingid st
 }
 
 // Scale the service offering for a system vm (console proxy or secondary storage). The system vm must be in a "Stopped" state for this command to take effect.
-func (s *SystemVMService) ScaleSystemVm(p *ScaleSystemVmParams) (*ScaleSystemVmResponse, error) {
+func (s *SystemVMService) ScaleSystemVm(p *ScaleSystemVmParams, wait bool) (*ScaleSystemVmResponse, error) {
 	resp, err := s.cs.newRequest("scaleSystemVm", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -982,8 +1102,8 @@ func (s *SystemVMService) ScaleSystemVm(p *ScaleSystemVmParams) (*ScaleSystemVmR
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1002,6 +1122,30 @@ func (s *SystemVMService) ScaleSystemVm(p *ScaleSystemVmParams) (*ScaleSystemVmR
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SystemVMService) WaitForScaleSystemVm(jobid string) (*ScaleSystemVmResponse, error) {
+	var r ScaleSystemVmResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

@@ -57,7 +57,7 @@ func (s *RouterService) NewStartRouterParams(id string) *StartRouterParams {
 }
 
 // Starts a router.
-func (s *RouterService) StartRouter(p *StartRouterParams) (*StartRouterResponse, error) {
+func (s *RouterService) StartRouter(p *StartRouterParams, wait bool) (*StartRouterResponse, error) {
 	resp, err := s.cs.newRequest("startRouter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -68,8 +68,8 @@ func (s *RouterService) StartRouter(p *StartRouterParams) (*StartRouterResponse,
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -88,6 +88,30 @@ func (s *RouterService) StartRouter(p *StartRouterParams) (*StartRouterResponse,
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForStartRouter(jobid string) (*StartRouterResponse, error) {
+	var r StartRouterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -189,7 +213,7 @@ func (s *RouterService) NewRebootRouterParams(id string) *RebootRouterParams {
 }
 
 // Starts a router.
-func (s *RouterService) RebootRouter(p *RebootRouterParams) (*RebootRouterResponse, error) {
+func (s *RouterService) RebootRouter(p *RebootRouterParams, wait bool) (*RebootRouterResponse, error) {
 	resp, err := s.cs.newRequest("rebootRouter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -200,8 +224,8 @@ func (s *RouterService) RebootRouter(p *RebootRouterParams) (*RebootRouterRespon
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -220,6 +244,30 @@ func (s *RouterService) RebootRouter(p *RebootRouterParams) (*RebootRouterRespon
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForRebootRouter(jobid string) (*RebootRouterResponse, error) {
+	var r RebootRouterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -333,7 +381,7 @@ func (s *RouterService) NewStopRouterParams(id string) *StopRouterParams {
 }
 
 // Stops a router.
-func (s *RouterService) StopRouter(p *StopRouterParams) (*StopRouterResponse, error) {
+func (s *RouterService) StopRouter(p *StopRouterParams, wait bool) (*StopRouterResponse, error) {
 	resp, err := s.cs.newRequest("stopRouter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -344,8 +392,8 @@ func (s *RouterService) StopRouter(p *StopRouterParams) (*StopRouterResponse, er
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -364,6 +412,30 @@ func (s *RouterService) StopRouter(p *StopRouterParams) (*StopRouterResponse, er
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForStopRouter(jobid string) (*StopRouterResponse, error) {
+	var r StopRouterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -465,7 +537,7 @@ func (s *RouterService) NewDestroyRouterParams(id string) *DestroyRouterParams {
 }
 
 // Destroys a router.
-func (s *RouterService) DestroyRouter(p *DestroyRouterParams) (*DestroyRouterResponse, error) {
+func (s *RouterService) DestroyRouter(p *DestroyRouterParams, wait bool) (*DestroyRouterResponse, error) {
 	resp, err := s.cs.newRequest("destroyRouter", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -476,8 +548,8 @@ func (s *RouterService) DestroyRouter(p *DestroyRouterParams) (*DestroyRouterRes
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -496,6 +568,30 @@ func (s *RouterService) DestroyRouter(p *DestroyRouterParams) (*DestroyRouterRes
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForDestroyRouter(jobid string) (*DestroyRouterResponse, error) {
+	var r DestroyRouterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1264,7 +1360,7 @@ func (s *RouterService) NewConfigureVirtualRouterElementParams(enabled bool, id 
 }
 
 // Configures a virtual router element.
-func (s *RouterService) ConfigureVirtualRouterElement(p *ConfigureVirtualRouterElementParams) (*ConfigureVirtualRouterElementResponse, error) {
+func (s *RouterService) ConfigureVirtualRouterElement(p *ConfigureVirtualRouterElementParams, wait bool) (*ConfigureVirtualRouterElementResponse, error) {
 	resp, err := s.cs.newRequest("configureVirtualRouterElement", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1275,8 +1371,8 @@ func (s *RouterService) ConfigureVirtualRouterElement(p *ConfigureVirtualRouterE
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1295,6 +1391,30 @@ func (s *RouterService) ConfigureVirtualRouterElement(p *ConfigureVirtualRouterE
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForConfigureVirtualRouterElement(jobid string) (*ConfigureVirtualRouterElementResponse, error) {
+	var r ConfigureVirtualRouterElementResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1355,7 +1475,7 @@ func (s *RouterService) NewCreateVirtualRouterElementParams(nspid string) *Creat
 }
 
 // Create a virtual router element.
-func (s *RouterService) CreateVirtualRouterElement(p *CreateVirtualRouterElementParams) (*CreateVirtualRouterElementResponse, error) {
+func (s *RouterService) CreateVirtualRouterElement(p *CreateVirtualRouterElementParams, wait bool) (*CreateVirtualRouterElementResponse, error) {
 	resp, err := s.cs.newRequest("createVirtualRouterElement", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1366,8 +1486,8 @@ func (s *RouterService) CreateVirtualRouterElement(p *CreateVirtualRouterElement
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1386,6 +1506,30 @@ func (s *RouterService) CreateVirtualRouterElement(p *CreateVirtualRouterElement
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *RouterService) WaitForCreateVirtualRouterElement(jobid string) (*CreateVirtualRouterElementResponse, error) {
+	var r CreateVirtualRouterElementResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
