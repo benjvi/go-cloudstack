@@ -17,6 +17,7 @@
 package cloudstack43
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"crypto/tls"
@@ -26,6 +27,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 )
@@ -268,12 +270,12 @@ func (cs *CloudStackClient) newRequest(api string, params url.Values) (json.RawM
 	params.Set("response", "json")
 
 	// Generate signature for API call
-	// * Serialize parameters and sort them by key, done by Encode
+	// * Serialize parameters, URL encoding only values and sort them by key, done by Encode
 	// * Convert the entire argument string to lowercase
 	// * Replace all instances of '+' to '%20'
 	// * Calculate HMAC SHA1 of argument string with CloudStack secret
 	// * URL encode the string and convert to base64
-	s := params.Encode()
+	s := params.encodeKeys()
 	s2 := strings.ToLower(s)
 	s3 := strings.Replace(s2, "+", "%20", -1)
 	mac := hmac.New(sha1.New, []byte(cs.secret))
@@ -334,6 +336,31 @@ func getRawValue(b json.RawMessage) (json.RawMessage, error) {
 		return v, nil
 	}
 	return nil, fmt.Errorf("Unable to extract the raw value from:\n\n%s\n\n", string(b))
+}
+
+// Custom version of URL/Encode that only URL escapes values
+func encodeKeys(v url.Values) string {
+	if v == nil {
+		return ""
+	}
+	var buf bytes.Buffer
+	keys := make([]string, 0, len(v))
+	for k := range v {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		vs := v[k]
+		prefix := k + "="
+		for _, v := range vs {
+			if buf.Len() > 0 {
+				buf.WriteByte('&')
+			}
+			buf.WriteString(prefix)
+			buf.WriteString(url.QueryEscape(v))
+		}
+	}
+	return buf.String()
 }
 
 type APIDiscoveryService struct {
