@@ -866,7 +866,11 @@ func (s *service) generateNewAPICallFunc(a *API) {
 
 	// Generate the function signature
 	pn("// %s", a.Description)
-	pn("func (s *%s) %s(p *%s) (*%s, error) {", s.name, n, n+"Params", n+"Response")
+	if a.Isasync {
+		pn("func (s *%s) %s(p *%s, wait bool) (*%s, error) {", s.name, n, n+"Params", n+"Response")
+	} else {
+		pn("func (s *%s) %s(p *%s) (*%s, error) {", s.name, n, n+"Params", n+"Response")
+	}
 
 	// Generate the function body
 	pn("	resp, err := s.cs.newRequest(\"%s\", p.toURLValues())", a.Name)
@@ -886,8 +890,8 @@ func (s *service) generateNewAPICallFunc(a *API) {
 	pn("	}")
 	if a.Isasync {
 		pn("")
-		pn("	// If we have a async client, we need to wait for the async result")
-		pn("	if s.cs.async {")
+		pn("	// If we have an async client, we should have the option to wait for the async result")
+		pn("	if s.cs.async && wait {")
 		pn("		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)")
 		pn("		if err != nil {")
 		pn("			return nil, err")
@@ -913,6 +917,34 @@ func (s *service) generateNewAPICallFunc(a *API) {
 	pn("	return &r, nil")
 	pn("}")
 	pn("")
+	if a.Isasync {
+		pn("func (s *%s) %s(jobid string) (*%s, error) {", s.name, "WaitFor"+n, n+"Response")
+		pn("	var r %s", n+"Response")
+		pn("	")
+		pn("	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)")
+		pn("	if err != nil {")
+		pn("		return nil, err")
+		pn("	}")
+		pn("	// If 'warn' has a value it means the job is running longer than the configured")
+		pn("	// timeout, the resonse will contain the jobid of the running async job")
+		pn("	if warn != nil {")
+		pn("		return &r, warn")
+		pn("	}")
+		pn("")
+		if !isSuccessOnlyResponse(a.Response) {
+			pn("    b, err = getRawValue(b)")
+			pn("    if err != nil {")
+			pn("      return nil, err")
+			pn("    }")
+			pn("")
+		}
+		pn("	if err := json.Unmarshal(b, &r); err != nil {")
+		pn("		return nil, err")
+		pn("	}")
+		pn("	return &r, nil")
+		pn("}")
+		pn("")
+	}
 }
 
 func isSuccessOnlyResponse(resp APIResponses) bool {

@@ -255,7 +255,7 @@ func (s *HostService) NewReconnectHostParams(id string) *ReconnectHostParams {
 }
 
 // Reconnects a host.
-func (s *HostService) ReconnectHost(p *ReconnectHostParams) (*ReconnectHostResponse, error) {
+func (s *HostService) ReconnectHost(p *ReconnectHostParams, wait bool) (*ReconnectHostResponse, error) {
 	resp, err := s.cs.newRequest("reconnectHost", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -266,8 +266,8 @@ func (s *HostService) ReconnectHost(p *ReconnectHostParams) (*ReconnectHostRespo
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -286,6 +286,30 @@ func (s *HostService) ReconnectHost(p *ReconnectHostParams) (*ReconnectHostRespo
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForReconnectHost(jobid string) (*ReconnectHostResponse, error) {
+	var r ReconnectHostResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -584,7 +608,7 @@ func (s *HostService) NewPrepareHostForMaintenanceParams(id string) *PrepareHost
 }
 
 // Prepares a host for maintenance.
-func (s *HostService) PrepareHostForMaintenance(p *PrepareHostForMaintenanceParams) (*PrepareHostForMaintenanceResponse, error) {
+func (s *HostService) PrepareHostForMaintenance(p *PrepareHostForMaintenanceParams, wait bool) (*PrepareHostForMaintenanceResponse, error) {
 	resp, err := s.cs.newRequest("prepareHostForMaintenance", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -595,8 +619,8 @@ func (s *HostService) PrepareHostForMaintenance(p *PrepareHostForMaintenancePara
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -615,6 +639,30 @@ func (s *HostService) PrepareHostForMaintenance(p *PrepareHostForMaintenancePara
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForPrepareHostForMaintenance(jobid string) (*PrepareHostForMaintenanceResponse, error) {
+	var r PrepareHostForMaintenanceResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -700,7 +748,7 @@ func (s *HostService) NewCancelHostMaintenanceParams(id string) *CancelHostMaint
 }
 
 // Cancels host maintenance.
-func (s *HostService) CancelHostMaintenance(p *CancelHostMaintenanceParams) (*CancelHostMaintenanceResponse, error) {
+func (s *HostService) CancelHostMaintenance(p *CancelHostMaintenanceParams, wait bool) (*CancelHostMaintenanceResponse, error) {
 	resp, err := s.cs.newRequest("cancelHostMaintenance", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -711,8 +759,8 @@ func (s *HostService) CancelHostMaintenance(p *CancelHostMaintenanceParams) (*Ca
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -731,6 +779,30 @@ func (s *HostService) CancelHostMaintenance(p *CancelHostMaintenanceParams) (*Ca
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForCancelHostMaintenance(jobid string) (*CancelHostMaintenanceResponse, error) {
+	var r CancelHostMaintenanceResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1424,7 +1496,7 @@ func (s *HostService) NewReleaseHostReservationParams(id string) *ReleaseHostRes
 }
 
 // Releases host reservation.
-func (s *HostService) ReleaseHostReservation(p *ReleaseHostReservationParams) (*ReleaseHostReservationResponse, error) {
+func (s *HostService) ReleaseHostReservation(p *ReleaseHostReservationParams, wait bool) (*ReleaseHostReservationResponse, error) {
 	resp, err := s.cs.newRequest("releaseHostReservation", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1435,8 +1507,8 @@ func (s *HostService) ReleaseHostReservation(p *ReleaseHostReservationParams) (*
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1450,6 +1522,25 @@ func (s *HostService) ReleaseHostReservation(p *ReleaseHostReservationParams) (*
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForReleaseHostReservation(jobid string) (*ReleaseHostReservationResponse, error) {
+	var r ReleaseHostReservationResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1725,7 +1816,7 @@ func (s *HostService) NewDedicateHostParams(domainid string, hostid string) *Ded
 }
 
 // Dedicates a host.
-func (s *HostService) DedicateHost(p *DedicateHostParams) (*DedicateHostResponse, error) {
+func (s *HostService) DedicateHost(p *DedicateHostParams, wait bool) (*DedicateHostResponse, error) {
 	resp, err := s.cs.newRequest("dedicateHost", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1736,8 +1827,8 @@ func (s *HostService) DedicateHost(p *DedicateHostParams) (*DedicateHostResponse
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1756,6 +1847,30 @@ func (s *HostService) DedicateHost(p *DedicateHostParams) (*DedicateHostResponse
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForDedicateHost(jobid string) (*DedicateHostResponse, error) {
+	var r DedicateHostResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1803,7 +1918,7 @@ func (s *HostService) NewReleaseDedicatedHostParams(hostid string) *ReleaseDedic
 }
 
 // Release the dedication for host
-func (s *HostService) ReleaseDedicatedHost(p *ReleaseDedicatedHostParams) (*ReleaseDedicatedHostResponse, error) {
+func (s *HostService) ReleaseDedicatedHost(p *ReleaseDedicatedHostParams, wait bool) (*ReleaseDedicatedHostResponse, error) {
 	resp, err := s.cs.newRequest("releaseDedicatedHost", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1814,8 +1929,8 @@ func (s *HostService) ReleaseDedicatedHost(p *ReleaseDedicatedHostParams) (*Rele
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1829,6 +1944,25 @@ func (s *HostService) ReleaseDedicatedHost(p *ReleaseDedicatedHostParams) (*Rele
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *HostService) WaitForReleaseDedicatedHost(jobid string) (*ReleaseDedicatedHostResponse, error) {
+	var r ReleaseDedicatedHostResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

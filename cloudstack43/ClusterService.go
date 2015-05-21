@@ -773,7 +773,7 @@ func (s *ClusterService) NewDedicateClusterParams(clusterid string, domainid str
 }
 
 // Dedicate an existing cluster
-func (s *ClusterService) DedicateCluster(p *DedicateClusterParams) (*DedicateClusterResponse, error) {
+func (s *ClusterService) DedicateCluster(p *DedicateClusterParams, wait bool) (*DedicateClusterResponse, error) {
 	resp, err := s.cs.newRequest("dedicateCluster", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -784,8 +784,8 @@ func (s *ClusterService) DedicateCluster(p *DedicateClusterParams) (*DedicateClu
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -804,6 +804,30 @@ func (s *ClusterService) DedicateCluster(p *DedicateClusterParams) (*DedicateClu
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ClusterService) WaitForDedicateCluster(jobid string) (*DedicateClusterResponse, error) {
+	var r DedicateClusterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -851,7 +875,7 @@ func (s *ClusterService) NewReleaseDedicatedClusterParams(clusterid string) *Rel
 }
 
 // Release the dedication for cluster
-func (s *ClusterService) ReleaseDedicatedCluster(p *ReleaseDedicatedClusterParams) (*ReleaseDedicatedClusterResponse, error) {
+func (s *ClusterService) ReleaseDedicatedCluster(p *ReleaseDedicatedClusterParams, wait bool) (*ReleaseDedicatedClusterResponse, error) {
 	resp, err := s.cs.newRequest("releaseDedicatedCluster", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -862,8 +886,8 @@ func (s *ClusterService) ReleaseDedicatedCluster(p *ReleaseDedicatedClusterParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -877,6 +901,25 @@ func (s *ClusterService) ReleaseDedicatedCluster(p *ReleaseDedicatedClusterParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ClusterService) WaitForReleaseDedicatedCluster(jobid string) (*ReleaseDedicatedClusterResponse, error) {
+	var r ReleaseDedicatedClusterResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

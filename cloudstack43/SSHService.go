@@ -100,7 +100,7 @@ func (s *SSHService) NewResetSSHKeyForVirtualMachineParams(id string, keypair st
 }
 
 // Resets the SSH Key for virtual machine. The virtual machine must be in a "Stopped" state. [async]
-func (s *SSHService) ResetSSHKeyForVirtualMachine(p *ResetSSHKeyForVirtualMachineParams) (*ResetSSHKeyForVirtualMachineResponse, error) {
+func (s *SSHService) ResetSSHKeyForVirtualMachine(p *ResetSSHKeyForVirtualMachineParams, wait bool) (*ResetSSHKeyForVirtualMachineResponse, error) {
 	resp, err := s.cs.newRequest("resetSSHKeyForVirtualMachine", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -111,8 +111,8 @@ func (s *SSHService) ResetSSHKeyForVirtualMachine(p *ResetSSHKeyForVirtualMachin
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -131,6 +131,30 @@ func (s *SSHService) ResetSSHKeyForVirtualMachine(p *ResetSSHKeyForVirtualMachin
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SSHService) WaitForResetSSHKeyForVirtualMachine(jobid string) (*ResetSSHKeyForVirtualMachineResponse, error) {
+	var r ResetSSHKeyForVirtualMachineResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

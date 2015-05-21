@@ -632,7 +632,7 @@ func (s *PodService) NewDedicatePodParams(domainid string, podid string) *Dedica
 }
 
 // Dedicates a Pod.
-func (s *PodService) DedicatePod(p *DedicatePodParams) (*DedicatePodResponse, error) {
+func (s *PodService) DedicatePod(p *DedicatePodParams, wait bool) (*DedicatePodResponse, error) {
 	resp, err := s.cs.newRequest("dedicatePod", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -643,8 +643,8 @@ func (s *PodService) DedicatePod(p *DedicatePodParams) (*DedicatePodResponse, er
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -663,6 +663,30 @@ func (s *PodService) DedicatePod(p *DedicatePodParams) (*DedicatePodResponse, er
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *PodService) WaitForDedicatePod(jobid string) (*DedicatePodResponse, error) {
+	var r DedicatePodResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -710,7 +734,7 @@ func (s *PodService) NewReleaseDedicatedPodParams(podid string) *ReleaseDedicate
 }
 
 // Release the dedication for the pod
-func (s *PodService) ReleaseDedicatedPod(p *ReleaseDedicatedPodParams) (*ReleaseDedicatedPodResponse, error) {
+func (s *PodService) ReleaseDedicatedPod(p *ReleaseDedicatedPodParams, wait bool) (*ReleaseDedicatedPodResponse, error) {
 	resp, err := s.cs.newRequest("releaseDedicatedPod", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -721,8 +745,8 @@ func (s *PodService) ReleaseDedicatedPod(p *ReleaseDedicatedPodParams) (*Release
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -736,6 +760,25 @@ func (s *PodService) ReleaseDedicatedPod(p *ReleaseDedicatedPodParams) (*Release
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *PodService) WaitForReleaseDedicatedPod(jobid string) (*ReleaseDedicatedPodResponse, error) {
+	var r ReleaseDedicatedPodResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

@@ -91,7 +91,7 @@ func (s *ProjectService) NewCreateProjectParams(displaytext string, name string)
 }
 
 // Creates a project
-func (s *ProjectService) CreateProject(p *CreateProjectParams) (*CreateProjectResponse, error) {
+func (s *ProjectService) CreateProject(p *CreateProjectParams, wait bool) (*CreateProjectResponse, error) {
 	resp, err := s.cs.newRequest("createProject", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -102,8 +102,8 @@ func (s *ProjectService) CreateProject(p *CreateProjectParams) (*CreateProjectRe
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -122,6 +122,30 @@ func (s *ProjectService) CreateProject(p *CreateProjectParams) (*CreateProjectRe
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForCreateProject(jobid string) (*CreateProjectResponse, error) {
+	var r CreateProjectResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -217,7 +241,7 @@ func (s *ProjectService) NewDeleteProjectParams(id string) *DeleteProjectParams 
 }
 
 // Deletes a project
-func (s *ProjectService) DeleteProject(p *DeleteProjectParams) (*DeleteProjectResponse, error) {
+func (s *ProjectService) DeleteProject(p *DeleteProjectParams, wait bool) (*DeleteProjectResponse, error) {
 	resp, err := s.cs.newRequest("deleteProject", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -228,8 +252,8 @@ func (s *ProjectService) DeleteProject(p *DeleteProjectParams) (*DeleteProjectRe
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -243,6 +267,25 @@ func (s *ProjectService) DeleteProject(p *DeleteProjectParams) (*DeleteProjectRe
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForDeleteProject(jobid string) (*DeleteProjectResponse, error) {
+	var r DeleteProjectResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -308,7 +351,7 @@ func (s *ProjectService) NewUpdateProjectParams(id string) *UpdateProjectParams 
 }
 
 // Updates a project
-func (s *ProjectService) UpdateProject(p *UpdateProjectParams) (*UpdateProjectResponse, error) {
+func (s *ProjectService) UpdateProject(p *UpdateProjectParams, wait bool) (*UpdateProjectResponse, error) {
 	resp, err := s.cs.newRequest("updateProject", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -319,8 +362,8 @@ func (s *ProjectService) UpdateProject(p *UpdateProjectParams) (*UpdateProjectRe
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -339,6 +382,30 @@ func (s *ProjectService) UpdateProject(p *UpdateProjectParams) (*UpdateProjectRe
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForUpdateProject(jobid string) (*UpdateProjectResponse, error) {
+	var r UpdateProjectResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -434,7 +501,7 @@ func (s *ProjectService) NewActivateProjectParams(id string) *ActivateProjectPar
 }
 
 // Activates a project
-func (s *ProjectService) ActivateProject(p *ActivateProjectParams) (*ActivateProjectResponse, error) {
+func (s *ProjectService) ActivateProject(p *ActivateProjectParams, wait bool) (*ActivateProjectResponse, error) {
 	resp, err := s.cs.newRequest("activateProject", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -445,8 +512,8 @@ func (s *ProjectService) ActivateProject(p *ActivateProjectParams) (*ActivatePro
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -465,6 +532,30 @@ func (s *ProjectService) ActivateProject(p *ActivateProjectParams) (*ActivatePro
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForActivateProject(jobid string) (*ActivateProjectResponse, error) {
+	var r ActivateProjectResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -560,7 +651,7 @@ func (s *ProjectService) NewSuspendProjectParams(id string) *SuspendProjectParam
 }
 
 // Suspends a project
-func (s *ProjectService) SuspendProject(p *SuspendProjectParams) (*SuspendProjectResponse, error) {
+func (s *ProjectService) SuspendProject(p *SuspendProjectParams, wait bool) (*SuspendProjectResponse, error) {
 	resp, err := s.cs.newRequest("suspendProject", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -571,8 +662,8 @@ func (s *ProjectService) SuspendProject(p *SuspendProjectParams) (*SuspendProjec
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -591,6 +682,30 @@ func (s *ProjectService) SuspendProject(p *SuspendProjectParams) (*SuspendProjec
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForSuspendProject(jobid string) (*SuspendProjectResponse, error) {
+	var r SuspendProjectResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1231,7 +1346,7 @@ func (s *ProjectService) NewUpdateProjectInvitationParams(projectid string) *Upd
 }
 
 // Accepts or declines project invitation
-func (s *ProjectService) UpdateProjectInvitation(p *UpdateProjectInvitationParams) (*UpdateProjectInvitationResponse, error) {
+func (s *ProjectService) UpdateProjectInvitation(p *UpdateProjectInvitationParams, wait bool) (*UpdateProjectInvitationResponse, error) {
 	resp, err := s.cs.newRequest("updateProjectInvitation", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1242,8 +1357,8 @@ func (s *ProjectService) UpdateProjectInvitation(p *UpdateProjectInvitationParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1257,6 +1372,25 @@ func (s *ProjectService) UpdateProjectInvitation(p *UpdateProjectInvitationParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForUpdateProjectInvitation(jobid string) (*UpdateProjectInvitationResponse, error) {
+	var r UpdateProjectInvitationResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1300,7 +1434,7 @@ func (s *ProjectService) NewDeleteProjectInvitationParams(id string) *DeleteProj
 }
 
 // Accepts or declines project invitation
-func (s *ProjectService) DeleteProjectInvitation(p *DeleteProjectInvitationParams) (*DeleteProjectInvitationResponse, error) {
+func (s *ProjectService) DeleteProjectInvitation(p *DeleteProjectInvitationParams, wait bool) (*DeleteProjectInvitationResponse, error) {
 	resp, err := s.cs.newRequest("deleteProjectInvitation", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1311,8 +1445,8 @@ func (s *ProjectService) DeleteProjectInvitation(p *DeleteProjectInvitationParam
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1326,6 +1460,25 @@ func (s *ProjectService) DeleteProjectInvitation(p *DeleteProjectInvitationParam
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *ProjectService) WaitForDeleteProjectInvitation(jobid string) (*DeleteProjectInvitationResponse, error) {
+	var r DeleteProjectInvitationResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

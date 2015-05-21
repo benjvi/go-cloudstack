@@ -102,7 +102,7 @@ func (s *SnapshotService) NewCreateSnapshotParams(volumeid string) *CreateSnapsh
 }
 
 // Creates an instant snapshot of a volume.
-func (s *SnapshotService) CreateSnapshot(p *CreateSnapshotParams) (*CreateSnapshotResponse, error) {
+func (s *SnapshotService) CreateSnapshot(p *CreateSnapshotParams, wait bool) (*CreateSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("createSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -113,8 +113,8 @@ func (s *SnapshotService) CreateSnapshot(p *CreateSnapshotParams) (*CreateSnapsh
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -133,6 +133,30 @@ func (s *SnapshotService) CreateSnapshot(p *CreateSnapshotParams) (*CreateSnapsh
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForCreateSnapshot(jobid string) (*CreateSnapshotResponse, error) {
+	var r CreateSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -517,7 +541,7 @@ func (s *SnapshotService) NewDeleteSnapshotParams(id string) *DeleteSnapshotPara
 }
 
 // Deletes a snapshot of a disk volume.
-func (s *SnapshotService) DeleteSnapshot(p *DeleteSnapshotParams) (*DeleteSnapshotResponse, error) {
+func (s *SnapshotService) DeleteSnapshot(p *DeleteSnapshotParams, wait bool) (*DeleteSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("deleteSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -528,8 +552,8 @@ func (s *SnapshotService) DeleteSnapshot(p *DeleteSnapshotParams) (*DeleteSnapsh
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -543,6 +567,25 @@ func (s *SnapshotService) DeleteSnapshot(p *DeleteSnapshotParams) (*DeleteSnapsh
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForDeleteSnapshot(jobid string) (*DeleteSnapshotResponse, error) {
+	var r DeleteSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -847,7 +890,7 @@ func (s *SnapshotService) NewRevertSnapshotParams(id string) *RevertSnapshotPara
 }
 
 // revert a volume snapshot.
-func (s *SnapshotService) RevertSnapshot(p *RevertSnapshotParams) (*RevertSnapshotResponse, error) {
+func (s *SnapshotService) RevertSnapshot(p *RevertSnapshotParams, wait bool) (*RevertSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("revertSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -858,8 +901,8 @@ func (s *SnapshotService) RevertSnapshot(p *RevertSnapshotParams) (*RevertSnapsh
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -878,6 +921,30 @@ func (s *SnapshotService) RevertSnapshot(p *RevertSnapshotParams) (*RevertSnapsh
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForRevertSnapshot(jobid string) (*RevertSnapshotResponse, error) {
+	var r RevertSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1234,7 +1301,7 @@ func (s *SnapshotService) NewCreateVMSnapshotParams(virtualmachineid string) *Cr
 }
 
 // Creates snapshot for a vm.
-func (s *SnapshotService) CreateVMSnapshot(p *CreateVMSnapshotParams) (*CreateVMSnapshotResponse, error) {
+func (s *SnapshotService) CreateVMSnapshot(p *CreateVMSnapshotParams, wait bool) (*CreateVMSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("createVMSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1245,8 +1312,8 @@ func (s *SnapshotService) CreateVMSnapshot(p *CreateVMSnapshotParams) (*CreateVM
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1265,6 +1332,30 @@ func (s *SnapshotService) CreateVMSnapshot(p *CreateVMSnapshotParams) (*CreateVM
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForCreateVMSnapshot(jobid string) (*CreateVMSnapshotResponse, error) {
+	var r CreateVMSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1323,7 +1414,7 @@ func (s *SnapshotService) NewDeleteVMSnapshotParams(vmsnapshotid string) *Delete
 }
 
 // Deletes a vmsnapshot.
-func (s *SnapshotService) DeleteVMSnapshot(p *DeleteVMSnapshotParams) (*DeleteVMSnapshotResponse, error) {
+func (s *SnapshotService) DeleteVMSnapshot(p *DeleteVMSnapshotParams, wait bool) (*DeleteVMSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("deleteVMSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1334,8 +1425,8 @@ func (s *SnapshotService) DeleteVMSnapshot(p *DeleteVMSnapshotParams) (*DeleteVM
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1349,6 +1440,25 @@ func (s *SnapshotService) DeleteVMSnapshot(p *DeleteVMSnapshotParams) (*DeleteVM
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForDeleteVMSnapshot(jobid string) (*DeleteVMSnapshotResponse, error) {
+	var r DeleteVMSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1392,7 +1502,7 @@ func (s *SnapshotService) NewRevertToVMSnapshotParams(vmsnapshotid string) *Reve
 }
 
 // Revert VM from a vmsnapshot.
-func (s *SnapshotService) RevertToVMSnapshot(p *RevertToVMSnapshotParams) (*RevertToVMSnapshotResponse, error) {
+func (s *SnapshotService) RevertToVMSnapshot(p *RevertToVMSnapshotParams, wait bool) (*RevertToVMSnapshotResponse, error) {
 	resp, err := s.cs.newRequest("revertToVMSnapshot", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1403,8 +1513,8 @@ func (s *SnapshotService) RevertToVMSnapshot(p *RevertToVMSnapshotParams) (*Reve
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1423,6 +1533,30 @@ func (s *SnapshotService) RevertToVMSnapshot(p *RevertToVMSnapshotParams) (*Reve
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SnapshotService) WaitForRevertToVMSnapshot(jobid string) (*RevertToVMSnapshotResponse, error) {
+	var r RevertToVMSnapshotResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

@@ -135,7 +135,7 @@ func (s *AddressService) NewAssociateIpAddressParams() *AssociateIpAddressParams
 }
 
 // Acquires and associates a public IP to an account.
-func (s *AddressService) AssociateIpAddress(p *AssociateIpAddressParams) (*AssociateIpAddressResponse, error) {
+func (s *AddressService) AssociateIpAddress(p *AssociateIpAddressParams, wait bool) (*AssociateIpAddressResponse, error) {
 	resp, err := s.cs.newRequest("associateIpAddress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -146,8 +146,8 @@ func (s *AddressService) AssociateIpAddress(p *AssociateIpAddressParams) (*Assoc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -166,6 +166,30 @@ func (s *AddressService) AssociateIpAddress(p *AssociateIpAddressParams) (*Assoc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AddressService) WaitForAssociateIpAddress(jobid string) (*AssociateIpAddressResponse, error) {
+	var r AssociateIpAddressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -247,7 +271,7 @@ func (s *AddressService) NewDisassociateIpAddressParams(id string) *Disassociate
 }
 
 // Disassociates an ip address from the account.
-func (s *AddressService) DisassociateIpAddress(p *DisassociateIpAddressParams) (*DisassociateIpAddressResponse, error) {
+func (s *AddressService) DisassociateIpAddress(p *DisassociateIpAddressParams, wait bool) (*DisassociateIpAddressResponse, error) {
 	resp, err := s.cs.newRequest("disassociateIpAddress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -258,8 +282,8 @@ func (s *AddressService) DisassociateIpAddress(p *DisassociateIpAddressParams) (
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -273,6 +297,25 @@ func (s *AddressService) DisassociateIpAddress(p *DisassociateIpAddressParams) (
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *AddressService) WaitForDisassociateIpAddress(jobid string) (*DisassociateIpAddressResponse, error) {
+	var r DisassociateIpAddressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

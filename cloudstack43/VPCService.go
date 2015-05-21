@@ -161,7 +161,7 @@ func (s *VPCService) NewCreateVPCParams(cidr string, displaytext string, name st
 }
 
 // Creates a VPC
-func (s *VPCService) CreateVPC(p *CreateVPCParams) (*CreateVPCResponse, error) {
+func (s *VPCService) CreateVPC(p *CreateVPCParams, wait bool) (*CreateVPCResponse, error) {
 	resp, err := s.cs.newRequest("createVPC", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -172,8 +172,8 @@ func (s *VPCService) CreateVPC(p *CreateVPCParams) (*CreateVPCResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -192,6 +192,30 @@ func (s *VPCService) CreateVPC(p *CreateVPCParams) (*CreateVPCResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForCreateVPC(jobid string) (*CreateVPCResponse, error) {
+	var r CreateVPCResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -795,7 +819,7 @@ func (s *VPCService) NewDeleteVPCParams(id string) *DeleteVPCParams {
 }
 
 // Deletes a VPC
-func (s *VPCService) DeleteVPC(p *DeleteVPCParams) (*DeleteVPCResponse, error) {
+func (s *VPCService) DeleteVPC(p *DeleteVPCParams, wait bool) (*DeleteVPCResponse, error) {
 	resp, err := s.cs.newRequest("deleteVPC", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -806,8 +830,8 @@ func (s *VPCService) DeleteVPC(p *DeleteVPCParams) (*DeleteVPCResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -821,6 +845,25 @@ func (s *VPCService) DeleteVPC(p *DeleteVPCParams) (*DeleteVPCResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForDeleteVPC(jobid string) (*DeleteVPCResponse, error) {
+	var r DeleteVPCResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -887,7 +930,7 @@ func (s *VPCService) NewUpdateVPCParams(id string, name string) *UpdateVPCParams
 }
 
 // Updates a VPC
-func (s *VPCService) UpdateVPC(p *UpdateVPCParams) (*UpdateVPCResponse, error) {
+func (s *VPCService) UpdateVPC(p *UpdateVPCParams, wait bool) (*UpdateVPCResponse, error) {
 	resp, err := s.cs.newRequest("updateVPC", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -898,8 +941,8 @@ func (s *VPCService) UpdateVPC(p *UpdateVPCParams) (*UpdateVPCResponse, error) {
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -918,6 +961,30 @@ func (s *VPCService) UpdateVPC(p *UpdateVPCParams) (*UpdateVPCResponse, error) {
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForUpdateVPC(jobid string) (*UpdateVPCResponse, error) {
+	var r UpdateVPCResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1079,7 +1146,7 @@ func (s *VPCService) NewRestartVPCParams(id string) *RestartVPCParams {
 }
 
 // Restarts a VPC
-func (s *VPCService) RestartVPC(p *RestartVPCParams) (*RestartVPCResponse, error) {
+func (s *VPCService) RestartVPC(p *RestartVPCParams, wait bool) (*RestartVPCResponse, error) {
 	resp, err := s.cs.newRequest("restartVPC", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1090,8 +1157,8 @@ func (s *VPCService) RestartVPC(p *RestartVPCParams) (*RestartVPCResponse, error
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1110,6 +1177,30 @@ func (s *VPCService) RestartVPC(p *RestartVPCParams) (*RestartVPCResponse, error
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForRestartVPC(jobid string) (*RestartVPCResponse, error) {
+	var r RestartVPCResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1323,7 +1414,7 @@ func (s *VPCService) NewCreateVPCOfferingParams(displaytext string, name string,
 }
 
 // Creates VPC offering
-func (s *VPCService) CreateVPCOffering(p *CreateVPCOfferingParams) (*CreateVPCOfferingResponse, error) {
+func (s *VPCService) CreateVPCOffering(p *CreateVPCOfferingParams, wait bool) (*CreateVPCOfferingResponse, error) {
 	resp, err := s.cs.newRequest("createVPCOffering", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1334,8 +1425,8 @@ func (s *VPCService) CreateVPCOffering(p *CreateVPCOfferingParams) (*CreateVPCOf
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1354,6 +1445,30 @@ func (s *VPCService) CreateVPCOffering(p *CreateVPCOfferingParams) (*CreateVPCOf
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForCreateVPCOffering(jobid string) (*CreateVPCOfferingResponse, error) {
+	var r CreateVPCOfferingResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1451,7 +1566,7 @@ func (s *VPCService) NewUpdateVPCOfferingParams(id string) *UpdateVPCOfferingPar
 }
 
 // Updates VPC offering
-func (s *VPCService) UpdateVPCOffering(p *UpdateVPCOfferingParams) (*UpdateVPCOfferingResponse, error) {
+func (s *VPCService) UpdateVPCOffering(p *UpdateVPCOfferingParams, wait bool) (*UpdateVPCOfferingResponse, error) {
 	resp, err := s.cs.newRequest("updateVPCOffering", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1462,8 +1577,8 @@ func (s *VPCService) UpdateVPCOffering(p *UpdateVPCOfferingParams) (*UpdateVPCOf
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1482,6 +1597,30 @@ func (s *VPCService) UpdateVPCOffering(p *UpdateVPCOfferingParams) (*UpdateVPCOf
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForUpdateVPCOffering(jobid string) (*UpdateVPCOfferingResponse, error) {
+	var r UpdateVPCOfferingResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1546,7 +1685,7 @@ func (s *VPCService) NewDeleteVPCOfferingParams(id string) *DeleteVPCOfferingPar
 }
 
 // Deletes VPC offering
-func (s *VPCService) DeleteVPCOffering(p *DeleteVPCOfferingParams) (*DeleteVPCOfferingResponse, error) {
+func (s *VPCService) DeleteVPCOffering(p *DeleteVPCOfferingParams, wait bool) (*DeleteVPCOfferingResponse, error) {
 	resp, err := s.cs.newRequest("deleteVPCOffering", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1557,8 +1696,8 @@ func (s *VPCService) DeleteVPCOffering(p *DeleteVPCOfferingParams) (*DeleteVPCOf
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1572,6 +1711,25 @@ func (s *VPCService) DeleteVPCOffering(p *DeleteVPCOfferingParams) (*DeleteVPCOf
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForDeleteVPCOffering(jobid string) (*DeleteVPCOfferingResponse, error) {
+	var r DeleteVPCOfferingResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1947,7 +2105,7 @@ func (s *VPCService) NewCreatePrivateGatewayParams(gateway string, ipaddress str
 }
 
 // Creates a private gateway
-func (s *VPCService) CreatePrivateGateway(p *CreatePrivateGatewayParams) (*CreatePrivateGatewayResponse, error) {
+func (s *VPCService) CreatePrivateGateway(p *CreatePrivateGatewayParams, wait bool) (*CreatePrivateGatewayResponse, error) {
 	resp, err := s.cs.newRequest("createPrivateGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1958,8 +2116,8 @@ func (s *VPCService) CreatePrivateGateway(p *CreatePrivateGatewayParams) (*Creat
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1978,6 +2136,30 @@ func (s *VPCService) CreatePrivateGateway(p *CreatePrivateGatewayParams) (*Creat
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForCreatePrivateGateway(jobid string) (*CreatePrivateGatewayResponse, error) {
+	var r CreatePrivateGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2269,7 +2451,7 @@ func (s *VPCService) NewDeletePrivateGatewayParams(id string) *DeletePrivateGate
 }
 
 // Deletes a Private gateway
-func (s *VPCService) DeletePrivateGateway(p *DeletePrivateGatewayParams) (*DeletePrivateGatewayResponse, error) {
+func (s *VPCService) DeletePrivateGateway(p *DeletePrivateGatewayParams, wait bool) (*DeletePrivateGatewayResponse, error) {
 	resp, err := s.cs.newRequest("deletePrivateGateway", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2280,8 +2462,8 @@ func (s *VPCService) DeletePrivateGateway(p *DeletePrivateGatewayParams) (*Delet
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2295,6 +2477,25 @@ func (s *VPCService) DeletePrivateGateway(p *DeletePrivateGatewayParams) (*Delet
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForDeletePrivateGateway(jobid string) (*DeletePrivateGatewayResponse, error) {
+	var r DeletePrivateGatewayResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2350,7 +2551,7 @@ func (s *VPCService) NewCreateStaticRouteParams(cidr string, gatewayid string) *
 }
 
 // Creates a static route
-func (s *VPCService) CreateStaticRoute(p *CreateStaticRouteParams) (*CreateStaticRouteResponse, error) {
+func (s *VPCService) CreateStaticRoute(p *CreateStaticRouteParams, wait bool) (*CreateStaticRouteResponse, error) {
 	resp, err := s.cs.newRequest("createStaticRoute", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2361,8 +2562,8 @@ func (s *VPCService) CreateStaticRoute(p *CreateStaticRouteParams) (*CreateStati
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2381,6 +2582,30 @@ func (s *VPCService) CreateStaticRoute(p *CreateStaticRouteParams) (*CreateStati
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForCreateStaticRoute(jobid string) (*CreateStaticRouteResponse, error) {
+	var r CreateStaticRouteResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2444,7 +2669,7 @@ func (s *VPCService) NewDeleteStaticRouteParams(id string) *DeleteStaticRoutePar
 }
 
 // Deletes a static route
-func (s *VPCService) DeleteStaticRoute(p *DeleteStaticRouteParams) (*DeleteStaticRouteResponse, error) {
+func (s *VPCService) DeleteStaticRoute(p *DeleteStaticRouteParams, wait bool) (*DeleteStaticRouteResponse, error) {
 	resp, err := s.cs.newRequest("deleteStaticRoute", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2455,8 +2680,8 @@ func (s *VPCService) DeleteStaticRoute(p *DeleteStaticRouteParams) (*DeleteStati
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2470,6 +2695,25 @@ func (s *VPCService) DeleteStaticRoute(p *DeleteStaticRouteParams) (*DeleteStati
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *VPCService) WaitForDeleteStaticRoute(jobid string) (*DeleteStaticRouteResponse, error) {
+	var r DeleteStaticRouteResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

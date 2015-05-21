@@ -203,7 +203,7 @@ func (s *NATService) NewCreateIpForwardingRuleParams(ipaddressid string, protoco
 }
 
 // Creates an ip forwarding rule
-func (s *NATService) CreateIpForwardingRule(p *CreateIpForwardingRuleParams) (*CreateIpForwardingRuleResponse, error) {
+func (s *NATService) CreateIpForwardingRule(p *CreateIpForwardingRuleParams, wait bool) (*CreateIpForwardingRuleResponse, error) {
 	resp, err := s.cs.newRequest("createIpForwardingRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -214,8 +214,8 @@ func (s *NATService) CreateIpForwardingRule(p *CreateIpForwardingRuleParams) (*C
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -234,6 +234,30 @@ func (s *NATService) CreateIpForwardingRule(p *CreateIpForwardingRuleParams) (*C
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NATService) WaitForCreateIpForwardingRule(jobid string) (*CreateIpForwardingRuleResponse, error) {
+	var r CreateIpForwardingRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -302,7 +326,7 @@ func (s *NATService) NewDeleteIpForwardingRuleParams(id string) *DeleteIpForward
 }
 
 // Deletes an ip forwarding rule
-func (s *NATService) DeleteIpForwardingRule(p *DeleteIpForwardingRuleParams) (*DeleteIpForwardingRuleResponse, error) {
+func (s *NATService) DeleteIpForwardingRule(p *DeleteIpForwardingRuleParams, wait bool) (*DeleteIpForwardingRuleResponse, error) {
 	resp, err := s.cs.newRequest("deleteIpForwardingRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -313,8 +337,8 @@ func (s *NATService) DeleteIpForwardingRule(p *DeleteIpForwardingRuleParams) (*D
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -328,6 +352,25 @@ func (s *NATService) DeleteIpForwardingRule(p *DeleteIpForwardingRuleParams) (*D
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NATService) WaitForDeleteIpForwardingRule(jobid string) (*DeleteIpForwardingRuleResponse, error) {
+	var r DeleteIpForwardingRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -592,7 +635,7 @@ func (s *NATService) NewDisableStaticNatParams(ipaddressid string) *DisableStati
 }
 
 // Disables static rule for given ip address
-func (s *NATService) DisableStaticNat(p *DisableStaticNatParams) (*DisableStaticNatResponse, error) {
+func (s *NATService) DisableStaticNat(p *DisableStaticNatParams, wait bool) (*DisableStaticNatResponse, error) {
 	resp, err := s.cs.newRequest("disableStaticNat", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -603,8 +646,8 @@ func (s *NATService) DisableStaticNat(p *DisableStaticNatParams) (*DisableStatic
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -618,6 +661,25 @@ func (s *NATService) DisableStaticNat(p *DisableStaticNatParams) (*DisableStatic
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NATService) WaitForDisableStaticNat(jobid string) (*DisableStaticNatResponse, error) {
+	var r DisableStaticNatResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

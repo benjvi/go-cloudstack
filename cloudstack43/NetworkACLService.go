@@ -173,7 +173,7 @@ func (s *NetworkACLService) NewCreateNetworkACLParams(protocol string) *CreateNe
 }
 
 // Creates a ACL rule in the given network (the network has to belong to VPC)
-func (s *NetworkACLService) CreateNetworkACL(p *CreateNetworkACLParams) (*CreateNetworkACLResponse, error) {
+func (s *NetworkACLService) CreateNetworkACL(p *CreateNetworkACLParams, wait bool) (*CreateNetworkACLResponse, error) {
 	resp, err := s.cs.newRequest("createNetworkACL", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -184,8 +184,8 @@ func (s *NetworkACLService) CreateNetworkACL(p *CreateNetworkACLParams) (*Create
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -204,6 +204,30 @@ func (s *NetworkACLService) CreateNetworkACL(p *CreateNetworkACLParams) (*Create
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForCreateNetworkACL(jobid string) (*CreateNetworkACLResponse, error) {
+	var r CreateNetworkACLResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -374,7 +398,7 @@ func (s *NetworkACLService) NewUpdateNetworkACLItemParams(id string) *UpdateNetw
 }
 
 // Updates ACL Item with specified Id
-func (s *NetworkACLService) UpdateNetworkACLItem(p *UpdateNetworkACLItemParams) (*UpdateNetworkACLItemResponse, error) {
+func (s *NetworkACLService) UpdateNetworkACLItem(p *UpdateNetworkACLItemParams, wait bool) (*UpdateNetworkACLItemResponse, error) {
 	resp, err := s.cs.newRequest("updateNetworkACLItem", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -385,8 +409,8 @@ func (s *NetworkACLService) UpdateNetworkACLItem(p *UpdateNetworkACLItemParams) 
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -405,6 +429,30 @@ func (s *NetworkACLService) UpdateNetworkACLItem(p *UpdateNetworkACLItemParams) 
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForUpdateNetworkACLItem(jobid string) (*UpdateNetworkACLItemResponse, error) {
+	var r UpdateNetworkACLItemResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -470,7 +518,7 @@ func (s *NetworkACLService) NewDeleteNetworkACLParams(id string) *DeleteNetworkA
 }
 
 // Deletes a Network ACL
-func (s *NetworkACLService) DeleteNetworkACL(p *DeleteNetworkACLParams) (*DeleteNetworkACLResponse, error) {
+func (s *NetworkACLService) DeleteNetworkACL(p *DeleteNetworkACLParams, wait bool) (*DeleteNetworkACLResponse, error) {
 	resp, err := s.cs.newRequest("deleteNetworkACL", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -481,8 +529,8 @@ func (s *NetworkACLService) DeleteNetworkACL(p *DeleteNetworkACLParams) (*Delete
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -496,6 +544,25 @@ func (s *NetworkACLService) DeleteNetworkACL(p *DeleteNetworkACLParams) (*Delete
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForDeleteNetworkACL(jobid string) (*DeleteNetworkACLResponse, error) {
+	var r DeleteNetworkACLResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -829,7 +896,7 @@ func (s *NetworkACLService) NewCreateNetworkACLListParams(name string, vpcid str
 }
 
 // Creates a Network ACL for the given VPC
-func (s *NetworkACLService) CreateNetworkACLList(p *CreateNetworkACLListParams) (*CreateNetworkACLListResponse, error) {
+func (s *NetworkACLService) CreateNetworkACLList(p *CreateNetworkACLListParams, wait bool) (*CreateNetworkACLListResponse, error) {
 	resp, err := s.cs.newRequest("createNetworkACLList", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -840,8 +907,8 @@ func (s *NetworkACLService) CreateNetworkACLList(p *CreateNetworkACLListParams) 
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -860,6 +927,30 @@ func (s *NetworkACLService) CreateNetworkACLList(p *CreateNetworkACLListParams) 
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForCreateNetworkACLList(jobid string) (*CreateNetworkACLListResponse, error) {
+	var r CreateNetworkACLListResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -905,7 +996,7 @@ func (s *NetworkACLService) NewDeleteNetworkACLListParams(id string) *DeleteNetw
 }
 
 // Deletes a Network ACL
-func (s *NetworkACLService) DeleteNetworkACLList(p *DeleteNetworkACLListParams) (*DeleteNetworkACLListResponse, error) {
+func (s *NetworkACLService) DeleteNetworkACLList(p *DeleteNetworkACLListParams, wait bool) (*DeleteNetworkACLListResponse, error) {
 	resp, err := s.cs.newRequest("deleteNetworkACLList", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -916,8 +1007,8 @@ func (s *NetworkACLService) DeleteNetworkACLList(p *DeleteNetworkACLListParams) 
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -931,6 +1022,25 @@ func (s *NetworkACLService) DeleteNetworkACLList(p *DeleteNetworkACLListParams) 
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForDeleteNetworkACLList(jobid string) (*DeleteNetworkACLListResponse, error) {
+	var r DeleteNetworkACLListResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -996,7 +1106,7 @@ func (s *NetworkACLService) NewReplaceNetworkACLListParams(aclid string) *Replac
 }
 
 // Replaces ACL associated with a Network or private gateway
-func (s *NetworkACLService) ReplaceNetworkACLList(p *ReplaceNetworkACLListParams) (*ReplaceNetworkACLListResponse, error) {
+func (s *NetworkACLService) ReplaceNetworkACLList(p *ReplaceNetworkACLListParams, wait bool) (*ReplaceNetworkACLListResponse, error) {
 	resp, err := s.cs.newRequest("replaceNetworkACLList", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1007,8 +1117,8 @@ func (s *NetworkACLService) ReplaceNetworkACLList(p *ReplaceNetworkACLListParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1022,6 +1132,25 @@ func (s *NetworkACLService) ReplaceNetworkACLList(p *ReplaceNetworkACLListParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *NetworkACLService) WaitForReplaceNetworkACLList(jobid string) (*ReplaceNetworkACLListResponse, error) {
+	var r ReplaceNetworkACLListResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

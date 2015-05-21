@@ -70,7 +70,7 @@ func (s *InternalLBService) NewConfigureInternalLoadBalancerElementParams(enable
 }
 
 // Configures an Internal Load Balancer element.
-func (s *InternalLBService) ConfigureInternalLoadBalancerElement(p *ConfigureInternalLoadBalancerElementParams) (*ConfigureInternalLoadBalancerElementResponse, error) {
+func (s *InternalLBService) ConfigureInternalLoadBalancerElement(p *ConfigureInternalLoadBalancerElementParams, wait bool) (*ConfigureInternalLoadBalancerElementResponse, error) {
 	resp, err := s.cs.newRequest("configureInternalLoadBalancerElement", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -81,8 +81,8 @@ func (s *InternalLBService) ConfigureInternalLoadBalancerElement(p *ConfigureInt
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -101,6 +101,30 @@ func (s *InternalLBService) ConfigureInternalLoadBalancerElement(p *ConfigureInt
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *InternalLBService) WaitForConfigureInternalLoadBalancerElement(jobid string) (*ConfigureInternalLoadBalancerElementResponse, error) {
+	var r ConfigureInternalLoadBalancerElementResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -145,7 +169,7 @@ func (s *InternalLBService) NewCreateInternalLoadBalancerElementParams(nspid str
 }
 
 // Create an Internal Load Balancer element.
-func (s *InternalLBService) CreateInternalLoadBalancerElement(p *CreateInternalLoadBalancerElementParams) (*CreateInternalLoadBalancerElementResponse, error) {
+func (s *InternalLBService) CreateInternalLoadBalancerElement(p *CreateInternalLoadBalancerElementParams, wait bool) (*CreateInternalLoadBalancerElementResponse, error) {
 	resp, err := s.cs.newRequest("createInternalLoadBalancerElement", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -156,8 +180,8 @@ func (s *InternalLBService) CreateInternalLoadBalancerElement(p *CreateInternalL
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -176,6 +200,30 @@ func (s *InternalLBService) CreateInternalLoadBalancerElement(p *CreateInternalL
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *InternalLBService) WaitForCreateInternalLoadBalancerElement(jobid string) (*CreateInternalLoadBalancerElementResponse, error) {
+	var r CreateInternalLoadBalancerElementResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -373,7 +421,7 @@ func (s *InternalLBService) NewStopInternalLoadBalancerVMParams(id string) *Stop
 }
 
 // Stops an Internal LB vm.
-func (s *InternalLBService) StopInternalLoadBalancerVM(p *StopInternalLoadBalancerVMParams) (*StopInternalLoadBalancerVMResponse, error) {
+func (s *InternalLBService) StopInternalLoadBalancerVM(p *StopInternalLoadBalancerVMParams, wait bool) (*StopInternalLoadBalancerVMResponse, error) {
 	resp, err := s.cs.newRequest("stopInternalLoadBalancerVM", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -384,8 +432,8 @@ func (s *InternalLBService) StopInternalLoadBalancerVM(p *StopInternalLoadBalanc
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -404,6 +452,30 @@ func (s *InternalLBService) StopInternalLoadBalancerVM(p *StopInternalLoadBalanc
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *InternalLBService) WaitForStopInternalLoadBalancerVM(jobid string) (*StopInternalLoadBalancerVMResponse, error) {
+	var r StopInternalLoadBalancerVMResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -505,7 +577,7 @@ func (s *InternalLBService) NewStartInternalLoadBalancerVMParams(id string) *Sta
 }
 
 // Starts an existing internal lb vm.
-func (s *InternalLBService) StartInternalLoadBalancerVM(p *StartInternalLoadBalancerVMParams) (*StartInternalLoadBalancerVMResponse, error) {
+func (s *InternalLBService) StartInternalLoadBalancerVM(p *StartInternalLoadBalancerVMParams, wait bool) (*StartInternalLoadBalancerVMResponse, error) {
 	resp, err := s.cs.newRequest("startInternalLoadBalancerVM", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -516,8 +588,8 @@ func (s *InternalLBService) StartInternalLoadBalancerVM(p *StartInternalLoadBala
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -536,6 +608,30 @@ func (s *InternalLBService) StartInternalLoadBalancerVM(p *StartInternalLoadBala
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *InternalLBService) WaitForStartInternalLoadBalancerVM(jobid string) (*StartInternalLoadBalancerVMResponse, error) {
+	var r StartInternalLoadBalancerVMResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

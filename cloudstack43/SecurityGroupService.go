@@ -416,7 +416,7 @@ func (s *SecurityGroupService) NewAuthorizeSecurityGroupIngressParams() *Authori
 }
 
 // Authorizes a particular ingress rule for this security group
-func (s *SecurityGroupService) AuthorizeSecurityGroupIngress(p *AuthorizeSecurityGroupIngressParams) (*AuthorizeSecurityGroupIngressResponse, error) {
+func (s *SecurityGroupService) AuthorizeSecurityGroupIngress(p *AuthorizeSecurityGroupIngressParams, wait bool) (*AuthorizeSecurityGroupIngressResponse, error) {
 	resp, err := s.cs.newRequest("authorizeSecurityGroupIngress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -427,8 +427,8 @@ func (s *SecurityGroupService) AuthorizeSecurityGroupIngress(p *AuthorizeSecurit
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -447,6 +447,30 @@ func (s *SecurityGroupService) AuthorizeSecurityGroupIngress(p *AuthorizeSecurit
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SecurityGroupService) WaitForAuthorizeSecurityGroupIngress(jobid string) (*AuthorizeSecurityGroupIngressResponse, error) {
+	var r AuthorizeSecurityGroupIngressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -497,7 +521,7 @@ func (s *SecurityGroupService) NewRevokeSecurityGroupIngressParams(id string) *R
 }
 
 // Deletes a particular ingress rule from this security group
-func (s *SecurityGroupService) RevokeSecurityGroupIngress(p *RevokeSecurityGroupIngressParams) (*RevokeSecurityGroupIngressResponse, error) {
+func (s *SecurityGroupService) RevokeSecurityGroupIngress(p *RevokeSecurityGroupIngressParams, wait bool) (*RevokeSecurityGroupIngressResponse, error) {
 	resp, err := s.cs.newRequest("revokeSecurityGroupIngress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -508,8 +532,8 @@ func (s *SecurityGroupService) RevokeSecurityGroupIngress(p *RevokeSecurityGroup
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -523,6 +547,25 @@ func (s *SecurityGroupService) RevokeSecurityGroupIngress(p *RevokeSecurityGroup
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SecurityGroupService) WaitForRevokeSecurityGroupIngress(jobid string) (*RevokeSecurityGroupIngressResponse, error) {
+	var r RevokeSecurityGroupIngressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -696,7 +739,7 @@ func (s *SecurityGroupService) NewAuthorizeSecurityGroupEgressParams() *Authoriz
 }
 
 // Authorizes a particular egress rule for this security group
-func (s *SecurityGroupService) AuthorizeSecurityGroupEgress(p *AuthorizeSecurityGroupEgressParams) (*AuthorizeSecurityGroupEgressResponse, error) {
+func (s *SecurityGroupService) AuthorizeSecurityGroupEgress(p *AuthorizeSecurityGroupEgressParams, wait bool) (*AuthorizeSecurityGroupEgressResponse, error) {
 	resp, err := s.cs.newRequest("authorizeSecurityGroupEgress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -707,8 +750,8 @@ func (s *SecurityGroupService) AuthorizeSecurityGroupEgress(p *AuthorizeSecurity
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -727,6 +770,30 @@ func (s *SecurityGroupService) AuthorizeSecurityGroupEgress(p *AuthorizeSecurity
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SecurityGroupService) WaitForAuthorizeSecurityGroupEgress(jobid string) (*AuthorizeSecurityGroupEgressResponse, error) {
+	var r AuthorizeSecurityGroupEgressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -777,7 +844,7 @@ func (s *SecurityGroupService) NewRevokeSecurityGroupEgressParams(id string) *Re
 }
 
 // Deletes a particular egress rule from this security group
-func (s *SecurityGroupService) RevokeSecurityGroupEgress(p *RevokeSecurityGroupEgressParams) (*RevokeSecurityGroupEgressResponse, error) {
+func (s *SecurityGroupService) RevokeSecurityGroupEgress(p *RevokeSecurityGroupEgressParams, wait bool) (*RevokeSecurityGroupEgressResponse, error) {
 	resp, err := s.cs.newRequest("revokeSecurityGroupEgress", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -788,8 +855,8 @@ func (s *SecurityGroupService) RevokeSecurityGroupEgress(p *RevokeSecurityGroupE
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -803,6 +870,25 @@ func (s *SecurityGroupService) RevokeSecurityGroupEgress(p *RevokeSecurityGroupE
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *SecurityGroupService) WaitForRevokeSecurityGroupEgress(jobid string) (*RevokeSecurityGroupEgressResponse, error) {
+	var r RevokeSecurityGroupEgressResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }

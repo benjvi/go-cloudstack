@@ -414,7 +414,7 @@ func (s *FirewallService) NewCreatePortForwardingRuleParams(ipaddressid string, 
 }
 
 // Creates a port forwarding rule
-func (s *FirewallService) CreatePortForwardingRule(p *CreatePortForwardingRuleParams) (*CreatePortForwardingRuleResponse, error) {
+func (s *FirewallService) CreatePortForwardingRule(p *CreatePortForwardingRuleParams, wait bool) (*CreatePortForwardingRuleResponse, error) {
 	resp, err := s.cs.newRequest("createPortForwardingRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -425,8 +425,8 @@ func (s *FirewallService) CreatePortForwardingRule(p *CreatePortForwardingRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -445,6 +445,30 @@ func (s *FirewallService) CreatePortForwardingRule(p *CreatePortForwardingRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForCreatePortForwardingRule(jobid string) (*CreatePortForwardingRuleResponse, error) {
+	var r CreatePortForwardingRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -513,7 +537,7 @@ func (s *FirewallService) NewDeletePortForwardingRuleParams(id string) *DeletePo
 }
 
 // Deletes a port forwarding rule
-func (s *FirewallService) DeletePortForwardingRule(p *DeletePortForwardingRuleParams) (*DeletePortForwardingRuleResponse, error) {
+func (s *FirewallService) DeletePortForwardingRule(p *DeletePortForwardingRuleParams, wait bool) (*DeletePortForwardingRuleResponse, error) {
 	resp, err := s.cs.newRequest("deletePortForwardingRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -524,8 +548,8 @@ func (s *FirewallService) DeletePortForwardingRule(p *DeletePortForwardingRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -539,6 +563,25 @@ func (s *FirewallService) DeletePortForwardingRule(p *DeletePortForwardingRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForDeletePortForwardingRule(jobid string) (*DeletePortForwardingRuleResponse, error) {
+	var r DeletePortForwardingRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -640,7 +683,7 @@ func (s *FirewallService) NewUpdatePortForwardingRuleParams(ipaddressid string, 
 }
 
 // Updates a port forwarding rule.  Only the private port and the virtual machine can be updated.
-func (s *FirewallService) UpdatePortForwardingRule(p *UpdatePortForwardingRuleParams) (*UpdatePortForwardingRuleResponse, error) {
+func (s *FirewallService) UpdatePortForwardingRule(p *UpdatePortForwardingRuleParams, wait bool) (*UpdatePortForwardingRuleResponse, error) {
 	resp, err := s.cs.newRequest("updatePortForwardingRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -651,8 +694,8 @@ func (s *FirewallService) UpdatePortForwardingRule(p *UpdatePortForwardingRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -671,6 +714,30 @@ func (s *FirewallService) UpdatePortForwardingRule(p *UpdatePortForwardingRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForUpdatePortForwardingRule(jobid string) (*UpdatePortForwardingRuleResponse, error) {
+	var r UpdatePortForwardingRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -822,7 +889,7 @@ func (s *FirewallService) NewCreateFirewallRuleParams(ipaddressid string, protoc
 }
 
 // Creates a firewall rule for a given ip address
-func (s *FirewallService) CreateFirewallRule(p *CreateFirewallRuleParams) (*CreateFirewallRuleResponse, error) {
+func (s *FirewallService) CreateFirewallRule(p *CreateFirewallRuleParams, wait bool) (*CreateFirewallRuleResponse, error) {
 	resp, err := s.cs.newRequest("createFirewallRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -833,8 +900,8 @@ func (s *FirewallService) CreateFirewallRule(p *CreateFirewallRuleParams) (*Crea
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -853,6 +920,30 @@ func (s *FirewallService) CreateFirewallRule(p *CreateFirewallRuleParams) (*Crea
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForCreateFirewallRule(jobid string) (*CreateFirewallRuleResponse, error) {
+	var r CreateFirewallRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -917,7 +1008,7 @@ func (s *FirewallService) NewDeleteFirewallRuleParams(id string) *DeleteFirewall
 }
 
 // Deletes a firewall rule
-func (s *FirewallService) DeleteFirewallRule(p *DeleteFirewallRuleParams) (*DeleteFirewallRuleResponse, error) {
+func (s *FirewallService) DeleteFirewallRule(p *DeleteFirewallRuleParams, wait bool) (*DeleteFirewallRuleResponse, error) {
 	resp, err := s.cs.newRequest("deleteFirewallRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -928,8 +1019,8 @@ func (s *FirewallService) DeleteFirewallRule(p *DeleteFirewallRuleParams) (*Dele
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -943,6 +1034,25 @@ func (s *FirewallService) DeleteFirewallRule(p *DeleteFirewallRuleParams) (*Dele
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForDeleteFirewallRule(jobid string) (*DeleteFirewallRuleResponse, error) {
+	var r DeleteFirewallRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1302,7 +1412,7 @@ func (s *FirewallService) NewCreateEgressFirewallRuleParams(networkid string, pr
 }
 
 // Creates a egress firewall rule for a given network
-func (s *FirewallService) CreateEgressFirewallRule(p *CreateEgressFirewallRuleParams) (*CreateEgressFirewallRuleResponse, error) {
+func (s *FirewallService) CreateEgressFirewallRule(p *CreateEgressFirewallRuleParams, wait bool) (*CreateEgressFirewallRuleResponse, error) {
 	resp, err := s.cs.newRequest("createEgressFirewallRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1313,8 +1423,8 @@ func (s *FirewallService) CreateEgressFirewallRule(p *CreateEgressFirewallRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1333,6 +1443,30 @@ func (s *FirewallService) CreateEgressFirewallRule(p *CreateEgressFirewallRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForCreateEgressFirewallRule(jobid string) (*CreateEgressFirewallRuleResponse, error) {
+	var r CreateEgressFirewallRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1397,7 +1531,7 @@ func (s *FirewallService) NewDeleteEgressFirewallRuleParams(id string) *DeleteEg
 }
 
 // Deletes an ggress firewall rule
-func (s *FirewallService) DeleteEgressFirewallRule(p *DeleteEgressFirewallRuleParams) (*DeleteEgressFirewallRuleResponse, error) {
+func (s *FirewallService) DeleteEgressFirewallRule(p *DeleteEgressFirewallRuleParams, wait bool) (*DeleteEgressFirewallRuleResponse, error) {
 	resp, err := s.cs.newRequest("deleteEgressFirewallRule", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1408,8 +1542,8 @@ func (s *FirewallService) DeleteEgressFirewallRule(p *DeleteEgressFirewallRulePa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1423,6 +1557,25 @@ func (s *FirewallService) DeleteEgressFirewallRule(p *DeleteEgressFirewallRulePa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForDeleteEgressFirewallRule(jobid string) (*DeleteEgressFirewallRuleResponse, error) {
+	var r DeleteEgressFirewallRuleResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1753,7 +1906,7 @@ func (s *FirewallService) NewAddSrxFirewallParams(networkdevicetype string, pass
 }
 
 // Adds a SRX firewall device
-func (s *FirewallService) AddSrxFirewall(p *AddSrxFirewallParams) (*AddSrxFirewallResponse, error) {
+func (s *FirewallService) AddSrxFirewall(p *AddSrxFirewallParams, wait bool) (*AddSrxFirewallResponse, error) {
 	resp, err := s.cs.newRequest("addSrxFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1764,8 +1917,8 @@ func (s *FirewallService) AddSrxFirewall(p *AddSrxFirewallParams) (*AddSrxFirewa
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1784,6 +1937,30 @@ func (s *FirewallService) AddSrxFirewall(p *AddSrxFirewallParams) (*AddSrxFirewa
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForAddSrxFirewall(jobid string) (*AddSrxFirewallResponse, error) {
+	var r AddSrxFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1841,7 +2018,7 @@ func (s *FirewallService) NewDeleteSrxFirewallParams(fwdeviceid string) *DeleteS
 }
 
 //  delete a SRX firewall device
-func (s *FirewallService) DeleteSrxFirewall(p *DeleteSrxFirewallParams) (*DeleteSrxFirewallResponse, error) {
+func (s *FirewallService) DeleteSrxFirewall(p *DeleteSrxFirewallParams, wait bool) (*DeleteSrxFirewallResponse, error) {
 	resp, err := s.cs.newRequest("deleteSrxFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1852,8 +2029,8 @@ func (s *FirewallService) DeleteSrxFirewall(p *DeleteSrxFirewallParams) (*Delete
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1867,6 +2044,25 @@ func (s *FirewallService) DeleteSrxFirewall(p *DeleteSrxFirewallParams) (*Delete
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForDeleteSrxFirewall(jobid string) (*DeleteSrxFirewallResponse, error) {
+	var r DeleteSrxFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -1922,7 +2118,7 @@ func (s *FirewallService) NewConfigureSrxFirewallParams(fwdeviceid string) *Conf
 }
 
 // Configures a SRX firewall device
-func (s *FirewallService) ConfigureSrxFirewall(p *ConfigureSrxFirewallParams) (*ConfigureSrxFirewallResponse, error) {
+func (s *FirewallService) ConfigureSrxFirewall(p *ConfigureSrxFirewallParams, wait bool) (*ConfigureSrxFirewallResponse, error) {
 	resp, err := s.cs.newRequest("configureSrxFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -1933,8 +2129,8 @@ func (s *FirewallService) ConfigureSrxFirewall(p *ConfigureSrxFirewallParams) (*
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -1953,6 +2149,30 @@ func (s *FirewallService) ConfigureSrxFirewall(p *ConfigureSrxFirewallParams) (*
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForConfigureSrxFirewall(jobid string) (*ConfigureSrxFirewallResponse, error) {
+	var r ConfigureSrxFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2173,7 +2393,7 @@ func (s *FirewallService) NewAddPaloAltoFirewallParams(networkdevicetype string,
 }
 
 // Adds a Palo Alto firewall device
-func (s *FirewallService) AddPaloAltoFirewall(p *AddPaloAltoFirewallParams) (*AddPaloAltoFirewallResponse, error) {
+func (s *FirewallService) AddPaloAltoFirewall(p *AddPaloAltoFirewallParams, wait bool) (*AddPaloAltoFirewallResponse, error) {
 	resp, err := s.cs.newRequest("addPaloAltoFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2184,8 +2404,8 @@ func (s *FirewallService) AddPaloAltoFirewall(p *AddPaloAltoFirewallParams) (*Ad
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2204,6 +2424,30 @@ func (s *FirewallService) AddPaloAltoFirewall(p *AddPaloAltoFirewallParams) (*Ad
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForAddPaloAltoFirewall(jobid string) (*AddPaloAltoFirewallResponse, error) {
+	var r AddPaloAltoFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2261,7 +2505,7 @@ func (s *FirewallService) NewDeletePaloAltoFirewallParams(fwdeviceid string) *De
 }
 
 //  delete a Palo Alto firewall device
-func (s *FirewallService) DeletePaloAltoFirewall(p *DeletePaloAltoFirewallParams) (*DeletePaloAltoFirewallResponse, error) {
+func (s *FirewallService) DeletePaloAltoFirewall(p *DeletePaloAltoFirewallParams, wait bool) (*DeletePaloAltoFirewallResponse, error) {
 	resp, err := s.cs.newRequest("deletePaloAltoFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2272,8 +2516,8 @@ func (s *FirewallService) DeletePaloAltoFirewall(p *DeletePaloAltoFirewallParams
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2287,6 +2531,25 @@ func (s *FirewallService) DeletePaloAltoFirewall(p *DeletePaloAltoFirewallParams
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForDeletePaloAltoFirewall(jobid string) (*DeletePaloAltoFirewallResponse, error) {
+	var r DeletePaloAltoFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
@@ -2342,7 +2605,7 @@ func (s *FirewallService) NewConfigurePaloAltoFirewallParams(fwdeviceid string) 
 }
 
 // Configures a Palo Alto firewall device
-func (s *FirewallService) ConfigurePaloAltoFirewall(p *ConfigurePaloAltoFirewallParams) (*ConfigurePaloAltoFirewallResponse, error) {
+func (s *FirewallService) ConfigurePaloAltoFirewall(p *ConfigurePaloAltoFirewallParams, wait bool) (*ConfigurePaloAltoFirewallResponse, error) {
 	resp, err := s.cs.newRequest("configurePaloAltoFirewall", p.toURLValues())
 	if err != nil {
 		return nil, err
@@ -2353,8 +2616,8 @@ func (s *FirewallService) ConfigurePaloAltoFirewall(p *ConfigurePaloAltoFirewall
 		return nil, err
 	}
 
-	// If we have a async client, we need to wait for the async result
-	if s.cs.async {
+	// If we have an async client, we should have the option to wait for the async result
+	if s.cs.async && wait {
 		b, warn, err := s.cs.GetAsyncJobResult(r.JobID, s.cs.timeout)
 		if err != nil {
 			return nil, err
@@ -2373,6 +2636,30 @@ func (s *FirewallService) ConfigurePaloAltoFirewall(p *ConfigurePaloAltoFirewall
 		if err := json.Unmarshal(b, &r); err != nil {
 			return nil, err
 		}
+	}
+	return &r, nil
+}
+
+func (s *FirewallService) WaitForConfigurePaloAltoFirewall(jobid string) (*ConfigurePaloAltoFirewallResponse, error) {
+	var r ConfigurePaloAltoFirewallResponse
+
+	b, warn, err := s.cs.GetAsyncJobResult(jobid, s.cs.timeout)
+	if err != nil {
+		return nil, err
+	}
+	// If 'warn' has a value it means the job is running longer than the configured
+	// timeout, the resonse will contain the jobid of the running async job
+	if warn != nil {
+		return &r, warn
+	}
+
+	b, err = getRawValue(b)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &r); err != nil {
+		return nil, err
 	}
 	return &r, nil
 }
