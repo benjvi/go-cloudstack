@@ -355,12 +355,12 @@ func (as *allServices) GeneralCode() ([]byte, error) {
 	pn("  params.Set(\"response\", \"json\")")
 	pn("")
 	pn("  // Generate signature for API call")
-	pn("  // * Serialize parameters, URL encoding only values and sort them by key, done by encodeKeys")
+	pn("  // * Serialize parameters, URL encoding only values and sort them by key, done by encodeValues")
 	pn("  // * Convert the entire argument string to lowercase")
 	pn("  // * Replace all instances of '+' to '%%20'")
 	pn("  // * Calculate HMAC SHA1 of argument string with CloudStack secret")
 	pn("  // * URL encode the string and convert to base64")
-	pn("  s := encodeKeys(params)")
+	pn("  s := encodeValues(params)")
 	pn("  s2 := strings.ToLower(s)")
 	pn("  s3 := strings.Replace(s2, \"+\", \"%%20\", -1)")
 	pn("  mac := hmac.New(sha1.New, []byte(cs.secret))")
@@ -412,7 +412,8 @@ func (as *allServices) GeneralCode() ([]byte, error) {
 	pn("}")
 	pn("")
 	pn("// Custom version of net/url Encode that only URL escapes values")
-	pn("func encodeKeys(v url.Values) string {")
+	pn("// Unmodified portions here remain under BSD license of The Go Authors: https://go.googlesource.com/go/+/master/LICENSE")
+	pn("func encodeValues(v url.Values) string {")
 	pn("	if v == nil {")
 	pn("		return \"\"")
 	pn("	}")
@@ -726,7 +727,7 @@ func (s *service) generateHelperFuncs(a *API) {
 			pn("}\n")
 			pn("")
 
-			if found := hasIDParamField(a.Params); found {
+			if hasIDParamField(a.Params) {
 				// Generate the function signature
 				pn("// This is a courtesy helper function, which in some cases may not work as expected!")
 				p("func (s *%s) Get%sByName(name string, ", s.name, parseSingular(ln))
@@ -773,7 +774,7 @@ func (s *service) generateHelperFuncs(a *API) {
 			}
 		}
 
-		if found := hasIDParamField(a.Params); found {
+		if hasIDParamField(a.Params) {
 			ln := strings.TrimPrefix(a.Name, "list")
 
 			// Generate the function signature
@@ -807,6 +808,27 @@ func (s *service) generateHelperFuncs(a *API) {
 			pn("		return nil, -1, err")
 			pn("	}")
 			pn("")
+
+			// If we have a function that also has a projectid parameter, add some logic
+			// that will also search in all existing projects if no match was found
+			if hasProjectIDParamField(a.Params) {
+				pn("	if l.Count == 0 {")
+				pn("		// If no matches, search all projects")
+				pn("		p.p[\"projectid\"] = \"-1\"")
+				pn("")
+				pn("		l, err = s.List%s(p)", ln)
+				pn("		if err != nil {")
+				pn("			if strings.Contains(err.Error(), fmt.Sprintf(")
+				pn("				\"Invalid parameter id value=%%s due to incorrect long value format, \"+")
+				pn("				\"or entity does not exist\", id)) {")
+				pn("				return nil, 0, fmt.Errorf(\"No match found for %%s: %%+v\", id, l)")
+				pn("			}")
+				pn("			return nil, -1, err")
+				pn("		}")
+				pn("	}")
+				pn("")
+			}
+
 			pn("	if l.Count == 0 {")
 			pn("	  return nil, l.Count, fmt.Errorf(\"No match found for %%s: %%+v\", id, l)")
 			pn("	}")
@@ -839,6 +861,15 @@ func hasNameOrKeywordParamField(params APIParams) (v string, found bool) {
 func hasIDParamField(params APIParams) bool {
 	for _, p := range params {
 		if p.Name == "id" && mapType(p.Type) == "string" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasProjectIDParamField(params APIParams) bool {
+	for _, p := range params {
+		if p.Name == "projectid" && mapType(p.Type) == "string" {
 			return true
 		}
 	}
